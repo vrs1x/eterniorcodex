@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="sr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Eternior | Satenske ruže i slatki poklon paketi</title>
+    <meta
+      name="description"
+      content="Eternior prodavnica satenskih ruža, buketa i slatkih poklon kutija sa poručivanjem preko WhatsApp poruke."
+    />
+    <meta property="og:title" content="Eternior | Satenske ruže i slatki poklon paketi" />
+    <meta property="og:description" content="Ručno rađene satenske ruže, buketi i slatke kutije iz Istočne Srbije." />
+    <meta property="og:image" content="assets/eternior_logo.webp" />
+    <meta property="og:type" content="website" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body data-page="home">
+    <header class="site-header">
+      <a class="brand" href="index.html" aria-label="Eternior početna">
+        <img src="assets/eternior_logo.webp" alt="Eternior logo" width="150" height="84" />
+      </a>
+
+      <button class="nav-toggle" type="button" data-nav-toggle aria-label="Otvori meni">
+        <span></span><span></span><span></span>
+      </button>
+
+      <nav class="site-nav" data-nav>
+        <a href="index.html" data-i18n="nav.home">Početna</a>
+        <a href="shop.html" data-i18n="nav.shop">Prodavnica</a>
+        <a href="custom.html" data-i18n="nav.custom">Kreiraj poklon</a>
+        <a href="contact.html" data-i18n="nav.contact">Kontakt</a>
+      </nav>
+
+      <div class="header-actions">
+        <div class="language-switcher" aria-label="Promena jezika">
+          <button type="button" data-lang="sr" class="is-active">SR</button>
+          <button type="button" data-lang="en">EN</button>
+          <button type="button" data-lang="zh">中文</button>
+        </div>
+        <button class="cart-toggle" type="button" data-open-cart aria-label="Otvori korpu">
+          <span data-i18n="cart.title">Korpa</span>
+          <b data-cart-count>0</b>
+        </button>
+      </div>
+    </header>
+
+    <main>
+      <section class="hero">
+        <div class="hero-media" role="img" aria-label="Luksuzni buket satenskih ruža">
+          <div class="gift-scene" aria-hidden="true">
+            <span class="door"></span>
+            <span class="boy"></span>
+            <span class="girl"></span>
+            <span class="gift-bouquet"></span>
+            <span class="heart h1"></span>
+            <span class="heart h2"></span>
+          </div>
+        </div>
+        <div class="hero-content reveal">
+          <p class="eyebrow" data-i18n="home.eyebrow">Ručno rađene satenske ruže</p>
+          <h1 data-i18n="home.title">Eternior</h1>
+          <p data-i18n="home.lead">
+            Pokloni koji traju duže od trenutka: satenske ruže, elegantni buketi i slatke kutije
+            koje poručujete za manje od minuta preko WhatsApp-a.
+          </p>
+          <div class="hero-actions">
+            <a class="button button-primary" href="shop.html" data-i18n="home.shopCta">Pogledaj kolekciju</a>
+            <a class="button button-outline" href="custom.html" data-i18n="home.customCta">Napravi svoj poklon</a>
+          </div>
+        </div>
+      </section>
+
+      <section class="signature-strip" aria-label="Eternior prednosti">
+        <span data-i18n="strip.one">Satenske ruže koje ne venu</span>
+        <span data-i18n="strip.two">Porudžbina kroz WhatsApp</span>
+        <span data-i18n="strip.three">Dostava ili lično preuzimanje</span>
+      </section>
+
+      <section class="section-shell intro-grid">
+        <div class="intro-copy reveal">
+          <p class="eyebrow" data-i18n="home.promiseEyebrow">Eternior doživljaj</p>
+          <h2 data-i18n="home.promiseTitle">Izaberi poklon, pošalji poruku, dogovor završen.</h2>
+          <p data-i18n="home.promiseText">
+            Dodaj gotov proizvod ili napravi svoj buket. Kada klikneš na kupovinu, otvara se
+            WhatsApp sa već napisanom porukom, a mi ti potvrđujemo dostupnost, cenu i način isporuke.
+          </p>
+        </div>
+        <div class="feature-card reveal">
+          <span class="feature-number">01</span>
+          <h3 data-i18n="home.featureTitle">Specijalno: poklon po budžetu</h3>
+          <p data-i18n="home.featureText">
+            Ne moraš da znaš tačno šta želiš. Unesi budžet, priliku i stil, a Eternior predlog
+            ide direktno u korpu kao personalizovana porudžbina.
+          </p>
+          <a class="button button-primary" href="custom.html#concierge" data-i18n="home.featureCta">Probaj predlog</a>
+        </div>
+      </section>
+
+      <section class="section-shell">
+        <div class="section-heading reveal">
+          <p class="eyebrow" data-i18n="home.previewEyebrow">Popularno</p>
+          <h2 data-i18n="home.previewTitle">Pokloni spremni za poručivanje</h2>
+        </div>
+        <div class="product-grid compact" data-featured-products></div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div>
+        <img src="assets/eternior_logo.webp" alt="Eternior" width="130" height="73" loading="lazy" />
+        <p data-i18n="footer.text">Satenske ruže, buketi i slatke kutije napravljene za trenutke koji se pamte.</p>
+      </div>
+      <div class="footer-columns">
+        <div>
+          <h3 data-i18n="footer.contactTitle">Kontakt</h3>
+          <p>WhatsApp: +381 61 1633267</p>
+          <p data-i18n="footer.location">Lokacija: Istočna Srbija</p>
+        </div>
+        <div>
+          <h3 data-i18n="footer.handmadeTitle">Ručni rad</h3>
+          <p data-i18n="footer.handmadeText">Svaka satenska ruža se pravi ručno, pažljivo sklapa i pakuje kao poklon koji traje.</p>
+        </div>
+        <div>
+          <h3 data-i18n="footer.orderingTitle">Poručivanje</h3>
+          <p data-i18n="footer.orderingText">Porudžbina se šalje preko WhatsApp-a i potvrđuje pre izrade ili slanja.</p>
+          <a href="contact.html" data-i18n="footer.contact">Kontakt i poručivanje</a>
+        </div>
+      </div>
+    </footer>
+
+    <aside class="cart-panel" data-cart-panel aria-hidden="true"></aside>
+    <div class="overlay" data-overlay></div>
+    <script src="script.js"></script>
+  </body>
+</html>

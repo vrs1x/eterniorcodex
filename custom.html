@@ -1,0 +1,212 @@
+<!doctype html>
+<html lang="sr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Kreiraj poklon | Eternior</title>
+    <meta name="description" content="Napravi svoj Eternior buket ili slatku kutiju po budžetu, boji i prilici." />
+    <meta property="og:title" content="Napravi svoj Eternior poklon" />
+    <meta property="og:description" content="Izaberi ruže, slatkiše, igračku i ručno pisanu poruku. Cena se računa uživo." />
+    <meta property="og:image" content="assets/eternior_logo.webp" />
+    <meta property="og:type" content="website" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body data-page="custom">
+    <header class="site-header">
+      <a class="brand" href="index.html" aria-label="Eternior početna">
+        <img src="assets/eternior_logo.webp" alt="Eternior logo" width="150" height="84" />
+      </a>
+      <button class="nav-toggle" type="button" data-nav-toggle aria-label="Otvori meni">
+        <span></span><span></span><span></span>
+      </button>
+      <nav class="site-nav" data-nav>
+        <a href="index.html" data-i18n="nav.home">Početna</a>
+        <a href="shop.html" data-i18n="nav.shop">Prodavnica</a>
+        <a href="custom.html" data-i18n="nav.custom">Kreiraj poklon</a>
+        <a href="contact.html" data-i18n="nav.contact">Kontakt</a>
+      </nav>
+      <div class="header-actions">
+        <div class="language-switcher" aria-label="Promena jezika">
+          <button type="button" data-lang="sr" class="is-active">SR</button>
+          <button type="button" data-lang="en">EN</button>
+          <button type="button" data-lang="zh">中文</button>
+        </div>
+        <button class="cart-toggle" type="button" data-open-cart aria-label="Otvori korpu">
+          <span data-i18n="cart.title">Korpa</span>
+          <b data-cart-count>0</b>
+        </button>
+      </div>
+    </header>
+
+    <main>
+      <section class="page-hero custom-hero">
+        <p class="eyebrow" data-i18n="custom.eyebrow">Tvoj poklon</p>
+        <h1 data-i18n="custom.title">Napravi buket ili slatku kutiju baš po svojoj ideji.</h1>
+        <p data-i18n="custom.lead">
+          Izaberi tip poklona, boje, slatkiše i budžet. Tvoja ideja ide u korpu, a zatim u
+          WhatsApp poruku kako bismo zajedno potvrdili detalje.
+        </p>
+      </section>
+
+      <section class="section-shell custom-grid">
+        <form class="builder-card" data-custom-form>
+          <p class="eyebrow" data-i18n="custom.formEyebrow">Ručno podešavanje</p>
+          <div class="builder-total">
+            <span data-i18n="custom.estimate">Procena cene</span>
+            <strong data-custom-total>1.500 RSD</strong>
+          </div>
+          <label>
+            <span data-i18n="custom.giftType">Tip poklona</span>
+            <select name="giftType">
+              <option value="Personalizovani satenski buket">Personalizovani satenski buket</option>
+              <option value="Personalizovana slatka kutija">Personalizovana slatka kutija</option>
+              <option value="Buket + slatka kutija">Buket + slatka kutija</option>
+            </select>
+          </label>
+          <div class="field-row">
+            <label>
+              <span data-i18n="custom.roseCount">Broj ruža</span>
+              <input name="roseCount" type="number" min="1" max="201" step="2" value="7" data-price-input />
+            </label>
+            <label>
+              <span data-i18n="custom.budget">Budžet u RSD</span>
+              <input name="budget" type="number" min="1500" step="500" value="3000" data-price-input />
+            </label>
+          </div>
+          <label class="checkbox-line">
+            <input name="memorial" type="checkbox" data-price-input />
+            <span data-i18n="custom.memorial">Za preminulu osobu, dozvoljen je samo paran broj ruža</span>
+          </label>
+          <label>
+            <span data-i18n="custom.color">Glavna boja</span>
+            <select name="roseColor">
+              <option>Šampanj</option>
+              <option>Slonova kost</option>
+              <option>Nežno roze</option>
+              <option>Crvena</option>
+              <option>Crna</option>
+              <option>Kombinacija boja</option>
+            </select>
+          </label>
+          <label data-non-memorial>
+            <span data-i18n="custom.sweets">Slatkiši</span>
+            <select name="sweets">
+              <option>Bez slatkiša</option>
+              <option>Čokolada</option>
+              <option>Bombone</option>
+              <option>Mešani slatkiši</option>
+              <option>Dogovor preko WhatsApp-a</option>
+            </select>
+          </label>
+          <div class="sweets-grid" data-non-memorial>
+            <label><span>Raffaello</span>
+              <input name="rafaello" type="number" min="0" max="80" value="0" data-price-input />
+            </label>
+            <label><span>Ferrero Rocher</span>
+              <input name="ferrero" type="number" min="0" max="80" value="0" data-price-input />
+            </label>
+            <label><span data-i18n="custom.miniChocolate">Male čokoladice</span>
+              <input name="miniChocolate" type="number" min="0" max="80" value="0" data-price-input />
+            </label>
+            <label><span data-i18n="custom.bigChocolate">Velike čokolade</span>
+              <input name="bigChocolate" type="number" min="0" max="20" value="0" data-price-input />
+            </label>
+          </div>
+          <div class="field-row" data-non-memorial>
+            <label><span data-i18n="custom.toy">Igračka</span>
+              <select name="toy" data-price-input>
+                <option>Bez igračke</option>
+                <option>Mali beli medvedić</option>
+                <option>Mali braon medvedić</option>
+                <option>Mali roze medvedić</option>
+                <option>Mini zeka</option>
+              </select>
+            </label>
+            <label><span data-i18n="custom.toyColor">Boja igračke</span>
+              <select name="toyColor">
+                <option>Bela</option>
+                <option>Braon</option>
+                <option>Roze</option>
+                <option>Bež</option>
+              </select>
+            </label>
+          </div>
+          <label data-non-memorial>
+            <span data-i18n="custom.notes">Poruka, prilika ili stil</span>
+            <textarea name="notes" rows="4" maxlength="210" placeholder="Na primer: crveno-zlatni buket za godišnjicu..." data-price-input></textarea>
+            <small data-message-counter>0 / 200 karaktera</small>
+          </label>
+          <label data-non-memorial>
+            <span data-i18n="custom.script">Pismo za ručno pisanu poruku</span>
+            <select name="script">
+              <option>Latinica</option>
+              <option>Ćirilica</option>
+            </select>
+          </label>
+          <button class="button button-primary" type="submit" data-i18n="custom.add">Dodaj personalizovan poklon</button>
+        </form>
+
+        <section class="builder-card concierge" id="concierge">
+          <p class="eyebrow" data-i18n="concierge.eyebrow">Eternior predlog</p>
+          <h2 data-i18n="concierge.title">Nisi siguran/na šta da izabereš?</h2>
+          <p data-i18n="concierge.text">
+            Unesi budžet, priliku i stil. Dobićeš predlog koji možeš odmah dodati u korpu.
+          </p>
+          <form data-concierge-form>
+            <label>
+              <span data-i18n="concierge.budget">Budžet u RSD</span>
+              <input name="budget" type="number" min="500" step="500" value="6000" />
+            </label>
+            <label>
+              <span data-i18n="concierge.occasion">Prilika</span>
+              <select name="occasion">
+                <option>Rođendan</option>
+                <option>Godišnjica</option>
+                <option>Izvinjenje</option>
+                <option>Romantičan poklon</option>
+                <option>Zahvalnost</option>
+              </select>
+            </label>
+            <label>
+              <span data-i18n="concierge.style">Stil</span>
+              <select name="style">
+                <option>Elegantno i nežno</option>
+                <option>Luksuzno i dramatično</option>
+                <option>Minimalno i moderno</option>
+                <option>Veselo i šareno</option>
+              </select>
+            </label>
+            <button class="button button-outline dark" type="submit" data-i18n="concierge.generate">Predloži poklon</button>
+          </form>
+          <div class="suggestion" data-suggestion aria-live="polite"></div>
+        </section>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div>
+        <img src="assets/eternior_logo.webp" alt="Eternior" width="130" height="73" loading="lazy" />
+        <p data-i18n="footer.text">Satenske ruže, buketi i slatke kutije napravljene za trenutke koji se pamte.</p>
+      </div>
+      <div class="footer-columns">
+        <div>
+          <h3 data-i18n="footer.rulesTitle">Pravila buketa</h3>
+          <p data-i18n="footer.rulesText">Poklon aranžmani imaju neparan broj ruža. Za preminulu osobu bira se paran broj.</p>
+        </div>
+        <div>
+          <h3 data-i18n="footer.minBudgetTitle">Minimalni budžet</h3>
+          <p data-i18n="footer.minBudgetText">Najmanji budžet za personalizovan poklon je 1.500 RSD.</p>
+        </div>
+        <div>
+          <h3 data-i18n="footer.contactTitle">Kontakt</h3>
+          <p>WhatsApp: +381 61 1633267</p>
+          <a href="shop.html" data-i18n="footer.shop">Pogledaj gotove poklone</a>
+        </div>
+      </div>
+    </footer>
+
+    <aside class="cart-panel" data-cart-panel aria-hidden="true"></aside>
+    <div class="overlay" data-overlay></div>
+    <script src="script.js"></script>
+  </body>
+</html>

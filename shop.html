@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="sr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Prodavnica | Eternior</title>
+    <meta name="description" content="Eternior kolekcija satenskih buketa i slatkih poklon kutija." />
+    <meta property="og:title" content="Eternior prodavnica satenskih ruža" />
+    <meta property="og:description" content="Pogledaj gotove bukete, slatke kutije i premium poklone. Cene u RSD i EUR." />
+    <meta property="og:image" content="assets/eternior_logo.webp" />
+    <meta property="og:type" content="website" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body data-page="shop">
+    <header class="site-header">
+      <a class="brand" href="index.html" aria-label="Eternior početna">
+        <img src="assets/eternior_logo.webp" alt="Eternior logo" width="150" height="84" />
+      </a>
+      <button class="nav-toggle" type="button" data-nav-toggle aria-label="Otvori meni">
+        <span></span><span></span><span></span>
+      </button>
+      <nav class="site-nav" data-nav>
+        <a href="index.html" data-i18n="nav.home">Početna</a>
+        <a href="shop.html" data-i18n="nav.shop">Prodavnica</a>
+        <a href="custom.html" data-i18n="nav.custom">Kreiraj poklon</a>
+        <a href="contact.html" data-i18n="nav.contact">Kontakt</a>
+      </nav>
+      <div class="header-actions">
+        <div class="language-switcher" aria-label="Promena jezika">
+          <button type="button" data-lang="sr" class="is-active">SR</button>
+          <button type="button" data-lang="en">EN</button>
+          <button type="button" data-lang="zh">中文</button>
+        </div>
+        <button class="cart-toggle" type="button" data-open-cart aria-label="Otvori korpu">
+          <span data-i18n="cart.title">Korpa</span>
+          <b data-cart-count>0</b>
+        </button>
+      </div>
+    </header>
+
+    <main>
+      <section class="page-hero shop-hero">
+        <p class="eyebrow" data-i18n="shop.eyebrow">Kolekcija</p>
+        <h1 data-i18n="shop.title">Izaberi poklon koji govori umesto tebe.</h1>
+        <p data-i18n="shop.lead">
+          Cene su prikazane u RSD, a možeš ih prebaciti u EUR. Kurs se pokušava osvežiti online,
+          a ako nije dostupan koristi se 1 EUR = 118 RSD.
+        </p>
+        <div class="toolbar">
+          <div class="currency-toggle" aria-label="Valuta">
+            <button type="button" data-currency="RSD" class="is-active">RSD</button>
+            <button type="button" data-currency="EUR">EUR</button>
+          </div>
+          <span class="rate-note" data-rate-note>1 EUR = 118 RSD</span>
+        </div>
+      </section>
+
+      <section class="section-shell shop-layout">
+        <aside class="filter-box">
+          <p class="eyebrow" data-i18n="shop.filterEyebrow">Filter</p>
+          <label class="filter-control"><span data-i18n="filter.search">Pretraga</span>
+            <input type="search" data-search data-placeholder-i18n="filter.searchPlaceholder" placeholder="npr. crvena, kutija, Ferrero" />
+          </label>
+          <label class="filter-control"><span data-i18n="filter.budget">Budžet do</span>
+            <input type="number" data-max-budget min="1500" step="500" placeholder="npr. 6000" />
+          </label>
+          <label class="filter-control"><span data-i18n="filter.occasion">Prilika</span>
+            <select data-occasion-filter>
+              <option value="all">Sve prilike</option>
+            </select>
+          </label>
+          <div class="filter-pills">
+            <button type="button" data-filter="all" class="is-active" data-i18n="shop.filterAll">Sve</button>
+            <button type="button" data-filter="bouquet" data-i18n="shop.filterBouquets">Buketi</button>
+            <button type="button" data-filter="sweet" data-i18n="shop.filterSweet">Slatke kutije</button>
+            <button type="button" data-filter="toy" data-i18n="filter.toy">Sa igračkom</button>
+            <button type="button" data-filter="premium">Premium</button>
+            <button type="button" data-filter="memorial" data-i18n="filter.memorial">Za preminule</button>
+          </div>
+          <button class="button button-outline dark" type="button" data-reset-filters data-i18n="filter.reset">Resetuj filtere</button>
+        </aside>
+        <div class="product-grid" data-product-grid></div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div>
+        <img src="assets/eternior_logo.webp" alt="Eternior" width="130" height="73" loading="lazy" />
+        <p data-i18n="footer.text">Satenske ruže, buketi i slatke kutije napravljene za trenutke koji se pamte.</p>
+      </div>
+      <div class="footer-columns">
+        <div>
+          <h3 data-i18n="footer.contactTitle">Kontakt</h3>
+          <p>WhatsApp: +381 61 1633267</p>
+          <p data-i18n="footer.location">Lokacija: Istočna Srbija</p>
+        </div>
+        <div>
+          <h3 data-i18n="footer.deliveryTitle">Dostava</h3>
+          <p data-i18n="footer.deliveryText">Kurirska služba po dogovoru. Okvirna cena dostave je oko 500 RSD.</p>
+        </div>
+        <div>
+          <h3 data-i18n="footer.personalTitle">Personalizacija</h3>
+          <p data-i18n="footer.personalText">Gotovi proizvodi se ne menjaju, ali možeš dodati poruku ili malu igračku.</p>
+          <a href="custom.html" data-i18n="footer.custom">Napravi personalizovan poklon</a>
+        </div>
+      </div>
+    </footer>
+
+    <aside class="cart-panel" data-cart-panel aria-hidden="true"></aside>
+    <div class="overlay" data-overlay></div>
+    <script src="script.js"></script>
+  </body>
+</html>

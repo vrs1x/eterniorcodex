@@ -1,0 +1,1220 @@
+const STORE = {
+  name: "Eternior",
+  whatsappNumber: "381611633267",
+  fallbackEurRsd: 118,
+  rateApi: "https://api.frankfurter.app/latest?from=EUR&to=RSD",
+  rosePrice: 200,
+  toyPrice: 500,
+  minGiftBudget: 1500,
+  estimatedDelivery: 500,
+};
+
+const state = {
+  cart: JSON.parse(localStorage.getItem("eterniorCart") || "[]"),
+  lang: localStorage.getItem("eterniorLang") || "sr",
+  currency: localStorage.getItem("eterniorCurrency") || "RSD",
+  eurRsd: Number(localStorage.getItem("eterniorRate")) || STORE.fallbackEurRsd,
+  activeFilter: "all",
+};
+
+const copy = {
+  sr: {
+    "nav.home": "Početna",
+    "nav.shop": "Prodavnica",
+    "nav.custom": "Kreiraj poklon",
+    "nav.contact": "Kontakt",
+    "cart.title": "Korpa",
+    "cart.empty": "Korpa je trenutno prazna.",
+    "cart.checkout": "Kupi preko WhatsApp-a",
+    "cart.clear": "Isprazni korpu",
+    "cart.total": "Ukupno približno",
+    "cart.name": "Tvoje ime",
+    "cart.delivery": "Način preuzimanja",
+    "cart.address": "Adresa ili napomena",
+    "cart.shipping": "Dostava",
+    "cart.pickup": "Lično preuzimanje",
+    "cart.decide": "Dogovor preko WhatsApp-a",
+    "cart.each": "po komadu",
+    "cart.close": "Zatvori korpu",
+    "filter.search": "Pretraga",
+    "filter.searchPlaceholder": "npr. crvena, kutija, Ferrero",
+    "filter.budget": "Budžet do",
+    "filter.occasion": "Prilika",
+    "filter.toy": "Sa igračkom",
+    "filter.memorial": "Za preminule",
+    "filter.reset": "Resetuj filtere",
+    "filter.allOccasions": "Sve prilike",
+    "filter.birthday": "Rođendan",
+    "filter.romance": "Romantično",
+    "filter.luxury": "Luksuzno",
+    "filter.thankyou": "Zahvalnost",
+    "filter.memorialOccasion": "Za preminulu osobu",
+    "home.eyebrow": "Ručno rađene satenske ruže",
+    "home.title": "Eternior",
+    "home.lead": "Pokloni koji traju duže od trenutka: satenske ruže, elegantni buketi i slatke kutije koje poručuješ za manje od minuta preko WhatsApp-a.",
+    "home.shopCta": "Pogledaj kolekciju",
+    "home.customCta": "Napravi svoj poklon",
+    "strip.one": "Satenske ruže koje ne venu",
+    "strip.two": "Porudžbina kroz WhatsApp",
+    "strip.three": "Dostava ili lično preuzimanje",
+    "home.promiseEyebrow": "Eternior doživljaj",
+    "home.promiseTitle": "Izaberi poklon, pošalji poruku, dogovor završen.",
+    "home.promiseText": "Dodaj gotov proizvod ili napravi svoj buket. Kada klikneš na kupovinu, otvara se WhatsApp sa već napisanom porukom, a mi ti potvrđujemo dostupnost, cenu i način isporuke.",
+    "home.featureTitle": "Specijalno: poklon po budžetu",
+    "home.featureText": "Ne moraš da znaš tačno šta želiš. Unesi budžet, priliku i stil, a Eternior predlog ide direktno u korpu kao personalizovana porudžbina.",
+    "home.featureCta": "Probaj predlog",
+    "home.previewEyebrow": "Popularno",
+    "home.previewTitle": "Pokloni spremni za poručivanje",
+    "shop.eyebrow": "Kolekcija",
+    "shop.title": "Izaberi poklon koji govori umesto tebe.",
+    "shop.lead": "Cene su prikazane u RSD, a možeš ih prebaciti u EUR. Kurs se pokušava osvežiti online, a ako nije dostupan koristi se 1 EUR = 118 RSD.",
+    "shop.filterEyebrow": "Filter",
+    "shop.filterAll": "Sve",
+    "shop.filterBouquets": "Buketi",
+    "shop.filterSweet": "Slatke kutije",
+    "shop.filterBundle": "Kombinacije",
+    "custom.eyebrow": "Tvoj poklon",
+    "custom.title": "Napravi buket ili slatku kutiju baš po svojoj ideji.",
+    "custom.lead": "Izaberi tip poklona, boje, slatkiše i budžet. Tvoja ideja ide u korpu, a zatim u WhatsApp poruku kako bismo zajedno potvrdili detalje.",
+    "custom.formEyebrow": "Ručno podešavanje",
+    "custom.giftType": "Tip poklona",
+    "custom.roseCount": "Broj ruža",
+    "custom.budget": "Budžet u RSD",
+    "custom.color": "Glavna boja",
+    "custom.sweets": "Slatkiši",
+    "custom.notes": "Poruka, prilika ili stil",
+    "custom.estimate": "Procena cene",
+    "custom.memorial": "Za preminulu osobu, dozvoljen je samo paran broj ruža",
+    "custom.miniChocolate": "Male čokoladice",
+    "custom.bigChocolate": "Velike čokolade",
+    "custom.toy": "Igračka",
+    "custom.toyColor": "Boja igračke",
+    "custom.script": "Pismo za ručno pisanu poruku",
+    "custom.add": "Dodaj personalizovan poklon",
+    "concierge.eyebrow": "Eternior predlog",
+    "concierge.title": "Nisi siguran/na šta da izabereš?",
+    "concierge.text": "Unesi budžet, priliku i stil. Dobićeš predlog koji možeš odmah dodati u korpu.",
+    "concierge.budget": "Budžet u RSD",
+    "concierge.occasion": "Prilika",
+    "concierge.style": "Stil",
+    "concierge.generate": "Predloži poklon",
+    "contact.eyebrow": "Poručivanje",
+    "contact.title": "Sve se dogovara brzo i jasno preko WhatsApp-a.",
+    "contact.lead": "Kada pošalješ korpu, dobijamo spremnu poruku sa proizvodima, budžetom, napomenama i izborom dostave. Posle toga potvrđujemo detalje pre izrade ili slanja.",
+    "contact.stepOneTitle": "Izaberi",
+    "contact.stepOneText": "Dodaj gotov proizvod ili napravi personalizovan poklon po budžetu.",
+    "contact.stepTwoTitle": "Pošalji",
+    "contact.stepTwoText": "Klik na kupovinu otvara WhatsApp sa porukom koju možeš proveriti pre slanja.",
+    "contact.stepThreeTitle": "Potvrdi",
+    "contact.stepThreeText": "Dogovaramo cenu, rok, dostavu ili lično preuzimanje.",
+    "contact.readyEyebrow": "Spreman/na?",
+    "contact.readyTitle": "Počni od kolekcije ili napravi svoj poklon.",
+    "footer.text": "Satenske ruže, buketi i slatke kutije napravljene za trenutke koji se pamte.",
+    "footer.contact": "Kontakt i poručivanje",
+    "footer.custom": "Napravi personalizovan poklon",
+    "footer.shop": "Pogledaj gotove poklone",
+    "footer.contactTitle": "Kontakt",
+    "footer.location": "Lokacija: Istočna Srbija",
+    "footer.handmadeTitle": "Ručni rad",
+    "footer.handmadeText": "Svaka satenska ruža se pravi ručno, pažljivo sklapa i pakuje kao poklon koji traje.",
+    "footer.orderingTitle": "Poručivanje",
+    "footer.orderingText": "Porudžbina se šalje preko WhatsApp-a i potvrđuje pre izrade ili slanja.",
+    "footer.deliveryTitle": "Dostava",
+    "footer.deliveryText": "Kurirska služba po dogovoru. Okvirna cena dostave je oko 500 RSD.",
+    "footer.personalTitle": "Personalizacija",
+    "footer.personalText": "Gotovi proizvodi se ne menjaju, ali možeš dodati poruku ili malu igračku.",
+    "footer.rulesTitle": "Pravila buketa",
+    "footer.rulesText": "Poklon aranžmani imaju neparan broj ruža. Za preminulu osobu bira se paran broj.",
+    "footer.minBudgetTitle": "Minimalni budžet",
+    "footer.minBudgetText": "Najmanji budžet za personalizovan poklon je 1.500 RSD.",
+    "footer.deliveryShort": "Dostava: kurirska služba, okvirno 500 RSD",
+    "footer.aboutTitle": "O nama",
+    "footer.aboutText": "Eternior je mali ručni rad. Aranžmane pravi kreativna devojka od 19 godina, koja se ovim bavi već 3 godine, a sajt i marketing vodi njen partner.",
+    "footer.legalTitle": "Pravne informacije",
+    "footer.legalText": "Naziv/PIB/adresu dodati nakon registracije ili po potrebi.",
+    "footer.confirmText": "Porudžbina se potvrđuje tek nakon dogovora preko WhatsApp-a.",
+    "faq.title": "Česta pitanja",
+    "faq.budgetQ": "Koliki je minimalni budžet?",
+    "faq.budgetA": "Minimalni budžet za bilo kakav poklon je 1.500 RSD. Gotovi proizvodi imaju svoju cenu, a personalizovani se računaju prema broju ruža i dodataka.",
+    "faq.deliveryQ": "Koliko košta dostava?",
+    "faq.deliveryA": "Dostava zavisi od kurirske službe i mesta isporuke, ali okvirno je oko 500 RSD. Tačan iznos potvrđujemo preko WhatsApp-a.",
+    "faq.readyQ": "Da li mogu da menjam gotov proizvod?",
+    "faq.readyA": "Gotovi proizvodi se ne menjaju, ali možeš dodati personalizovanu ručno pisanu poruku ili malu igračku.",
+    "faq.rosesQ": "Koliko ruža mogu da izaberem?",
+    "faq.rosesA": "Za poklon se bira neparan broj ruža. Ako je aranžman namenjen preminuloj osobi, bira se paran broj ruža.",
+    "faq.careQ": "Kako se održavaju satenske ruže?",
+    "faq.careA": "Drže se na suvom, dalje od direktnog sunca i ne peru se vodom. Po potrebi se nežno očiste suvom mekom četkicom.",
+    add: "Dodaj u korpu",
+    detailsTitle: "Detalji proizvoda",
+    readyMessage: "Personalizovana poruka",
+    readyMessagePlaceholder: "Do 200 karaktera, uz malo prostora da se završi reč.",
+    readyScript: "Pismo",
+    readyToy: "Igračka",
+    readyAddonNote: "Gotov proizvod se ne menja. Možeš dodati samo poruku ili malu igračku",
+    shareProduct: "Podeli proizvod",
+    suggestionTitle: "Predlog za tebe",
+    suggestionAdd: "Dodaj predlog u korpu",
+    suggestionDetails: "Automatski predlog",
+    copied: "Link i opis proizvoda su kopirani.",
+    rateFallback: "Kurs: 1 EUR = 118 RSD",
+    rateLive: "Osvežen kurs: 1 EUR = {rate} RSD",
+  },
+  en: {
+    "nav.home": "Home",
+    "nav.shop": "Shop",
+    "nav.custom": "Create gift",
+    "nav.contact": "Contact",
+    "cart.title": "Cart",
+    "cart.empty": "Your cart is empty.",
+    "cart.checkout": "Buy on WhatsApp",
+    "cart.clear": "Clear cart",
+    "cart.total": "Estimated total",
+    "cart.name": "Your name",
+    "cart.delivery": "Delivery option",
+    "cart.address": "Address or note",
+    "cart.shipping": "Shipping",
+    "cart.pickup": "Local pickup",
+    "cart.decide": "Decide on WhatsApp",
+    "cart.each": "each",
+    "cart.close": "Close cart",
+    "filter.search": "Search",
+    "filter.searchPlaceholder": "e.g. red, box, Ferrero",
+    "filter.budget": "Budget up to",
+    "filter.occasion": "Occasion",
+    "filter.toy": "With toy",
+    "filter.memorial": "Memorial",
+    "filter.reset": "Reset filters",
+    "filter.allOccasions": "All occasions",
+    "filter.birthday": "Birthday",
+    "filter.romance": "Romantic",
+    "filter.luxury": "Luxury",
+    "filter.thankyou": "Thank you",
+    "filter.memorialOccasion": "Memorial gift",
+    "home.eyebrow": "Handmade satin roses",
+    "home.title": "Eternior",
+    "home.lead": "Gifts that last beyond the moment: satin roses, elegant bouquets and sweet boxes ordered in less than a minute through WhatsApp.",
+    "home.shopCta": "View collection",
+    "home.customCta": "Create your gift",
+    "strip.one": "Satin roses that do not fade",
+    "strip.two": "Order through WhatsApp",
+    "strip.three": "Shipping or local pickup",
+    "home.promiseEyebrow": "Eternior experience",
+    "home.promiseTitle": "Choose a gift, send a message, confirm everything.",
+    "home.promiseText": "Add a ready product or create your bouquet. When you tap buy, WhatsApp opens with the order message prepared, and we confirm availability, price and delivery.",
+    "home.featureTitle": "Special: gift by budget",
+    "home.featureText": "You do not need to know exactly what you want. Enter your budget, occasion and style, and an Eternior suggestion goes straight into your cart.",
+    "home.featureCta": "Try suggestion",
+    "home.previewEyebrow": "Popular",
+    "home.previewTitle": "Gifts ready to order",
+    "shop.eyebrow": "Collection",
+    "shop.title": "Choose a gift that speaks for you.",
+    "shop.lead": "Prices are shown in RSD and can be switched to EUR. The exchange rate tries to update online; if unavailable it uses 1 EUR = 118 RSD.",
+    "shop.filterEyebrow": "Filter",
+    "shop.filterAll": "All",
+    "shop.filterBouquets": "Bouquets",
+    "shop.filterSweet": "Sweet boxes",
+    "shop.filterBundle": "Bundles",
+    "custom.eyebrow": "Your gift",
+    "custom.title": "Create a bouquet or sweet box from your own idea.",
+    "custom.lead": "Choose the gift type, colors, sweets and budget. Your idea goes into the cart and then into a WhatsApp message so we can confirm the details together.",
+    "custom.formEyebrow": "Manual builder",
+    "custom.giftType": "Gift type",
+    "custom.roseCount": "Number of roses",
+    "custom.budget": "Budget in RSD",
+    "custom.color": "Main color",
+    "custom.sweets": "Sweets",
+    "custom.notes": "Message, occasion or style",
+    "custom.estimate": "Price estimate",
+    "custom.memorial": "For a deceased person, only an even number of roses is allowed",
+    "custom.miniChocolate": "Mini chocolates",
+    "custom.bigChocolate": "Large chocolates",
+    "custom.toy": "Toy",
+    "custom.toyColor": "Toy color",
+    "custom.script": "Script for handwritten message",
+    "custom.add": "Add custom gift",
+    "concierge.eyebrow": "Eternior suggestion",
+    "concierge.title": "Not sure what to choose?",
+    "concierge.text": "Enter your budget, occasion and style. You will get a suggestion you can add to cart immediately.",
+    "concierge.budget": "Budget in RSD",
+    "concierge.occasion": "Occasion",
+    "concierge.style": "Style",
+    "concierge.generate": "Suggest a gift",
+    "contact.eyebrow": "Ordering",
+    "contact.title": "Everything is confirmed clearly through WhatsApp.",
+    "contact.lead": "When you send the cart, we receive a prepared message with products, budget, notes and delivery choice. Then we confirm the details before making or shipping.",
+    "contact.stepOneTitle": "Choose",
+    "contact.stepOneText": "Add a ready product or create a custom gift by budget.",
+    "contact.stepTwoTitle": "Send",
+    "contact.stepTwoText": "The buy button opens WhatsApp with a message you can check before sending.",
+    "contact.stepThreeTitle": "Confirm",
+    "contact.stepThreeText": "We agree on price, timing, shipping or local pickup.",
+    "contact.readyEyebrow": "Ready?",
+    "contact.readyTitle": "Start from the collection or create your own gift.",
+    "footer.text": "Satin roses, bouquets and sweet boxes made for memorable moments.",
+    "footer.contact": "Contact and ordering",
+    "footer.custom": "Create a personalized gift",
+    "footer.shop": "View ready gifts",
+    "footer.contactTitle": "Contact",
+    "footer.location": "Location: Eastern Serbia",
+    "footer.handmadeTitle": "Handmade",
+    "footer.handmadeText": "Each satin rose is handmade, carefully arranged and packed as a gift that lasts.",
+    "footer.orderingTitle": "Ordering",
+    "footer.orderingText": "The order is sent through WhatsApp and confirmed before making or shipping.",
+    "footer.deliveryTitle": "Delivery",
+    "footer.deliveryText": "Courier delivery by agreement. Estimated delivery is around 500 RSD.",
+    "footer.personalTitle": "Personalization",
+    "footer.personalText": "Ready products cannot be changed, but you can add a message or a small toy.",
+    "footer.rulesTitle": "Bouquet rules",
+    "footer.rulesText": "Gift arrangements use an odd number of roses. For a deceased person, choose an even number.",
+    "footer.minBudgetTitle": "Minimum budget",
+    "footer.minBudgetText": "The minimum budget for a personalized gift is 1,500 RSD.",
+    "footer.deliveryShort": "Delivery: courier service, around 500 RSD",
+    "footer.aboutTitle": "About us",
+    "footer.aboutText": "Eternior is a small handmade project. The arrangements are made by a creative 19-year-old who has been doing this for 3 years, while her partner handles the website and marketing.",
+    "footer.legalTitle": "Legal information",
+    "footer.legalText": "Business name/tax ID/address can be added after registration or when needed.",
+    "footer.confirmText": "The order is confirmed only after agreement through WhatsApp.",
+    "faq.title": "FAQ",
+    "faq.budgetQ": "What is the minimum budget?",
+    "faq.budgetA": "The minimum budget for any gift is 1,500 RSD. Ready products have fixed prices, while personalized gifts are calculated by roses and add-ons.",
+    "faq.deliveryQ": "How much is delivery?",
+    "faq.deliveryA": "Delivery depends on the courier service and destination, but it is usually around 500 RSD. The exact amount is confirmed through WhatsApp.",
+    "faq.readyQ": "Can I change a ready product?",
+    "faq.readyA": "Ready products cannot be changed, but you can add a personalized handwritten message or a small toy.",
+    "faq.rosesQ": "How many roses can I choose?",
+    "faq.rosesA": "Gift arrangements use an odd number of roses. If the arrangement is for a deceased person, choose an even number.",
+    "faq.careQ": "How do I care for satin roses?",
+    "faq.careA": "Keep them dry, away from direct sunlight, and do not wash with water. If needed, clean gently with a dry soft brush.",
+    add: "Add to cart",
+    detailsTitle: "Product details",
+    readyMessage: "Personalized message",
+    readyMessagePlaceholder: "Up to 200 characters, with a little room to finish the last word.",
+    readyScript: "Script",
+    readyToy: "Toy",
+    readyAddonNote: "Ready products cannot be changed. You can only add a message or a small toy",
+    shareProduct: "Share product",
+    suggestionTitle: "Suggestion for you",
+    suggestionAdd: "Add suggestion to cart",
+    suggestionDetails: "Automatic suggestion",
+    copied: "Product link and description copied.",
+    rateFallback: "Rate: 1 EUR = 118 RSD",
+    rateLive: "Updated rate: 1 EUR = {rate} RSD",
+  },
+  zh: {
+    "nav.home": "首页",
+    "nav.shop": "商店",
+    "nav.custom": "定制礼物",
+    "nav.contact": "联系",
+    "cart.title": "购物车",
+    "cart.empty": "购物车是空的。",
+    "cart.checkout": "通过 WhatsApp 购买",
+    "cart.clear": "清空购物车",
+    "cart.total": "预估总价",
+    "cart.name": "你的姓名",
+    "cart.delivery": "取货方式",
+    "cart.address": "地址或备注",
+    "cart.shipping": "配送",
+    "cart.pickup": "自取",
+    "cart.decide": "WhatsApp 上确认",
+    "cart.each": "每件",
+    "cart.close": "关闭购物车",
+    "filter.search": "搜索",
+    "filter.searchPlaceholder": "例如：红色、礼盒、Ferrero",
+    "filter.budget": "预算上限",
+    "filter.occasion": "场合",
+    "filter.toy": "带玩具",
+    "filter.memorial": "纪念",
+    "filter.reset": "重置筛选",
+    "filter.allOccasions": "所有场合",
+    "filter.birthday": "生日",
+    "filter.romance": "浪漫",
+    "filter.luxury": "奢华",
+    "filter.thankyou": "感谢",
+    "filter.memorialOccasion": "纪念逝者",
+    "home.eyebrow": "手工缎面玫瑰",
+    "home.title": "Eternior",
+    "home.lead": "比瞬间更长久的礼物：缎面玫瑰、优雅花束和甜品礼盒，可通过 WhatsApp 快速下单。",
+    "home.shopCta": "查看系列",
+    "home.customCta": "定制礼物",
+    "strip.one": "不会凋谢的缎面玫瑰",
+    "strip.two": "WhatsApp 下单",
+    "strip.three": "配送或自取",
+    "home.promiseEyebrow": "Eternior 体验",
+    "home.promiseTitle": "选择礼物，发送消息，确认细节。",
+    "home.promiseText": "可以选择现成商品，也可以定制花束。点击购买后，WhatsApp 会打开已准备好的订单消息，我们会确认库存、价格和配送。",
+    "home.featureTitle": "特色：按预算推荐礼物",
+    "home.featureText": "不确定要选什么也没关系。输入预算、场合和风格，Eternior 推荐会直接加入购物车。",
+    "home.featureCta": "试试推荐",
+    "home.previewEyebrow": "热门",
+    "home.previewTitle": "可立即下单的礼物",
+    "shop.eyebrow": "系列",
+    "shop.title": "选择一份替你表达心意的礼物。",
+    "shop.lead": "价格默认显示 RSD，也可切换为 EUR。汇率会尝试在线更新；如不可用，则使用 1 EUR = 118 RSD。",
+    "shop.filterEyebrow": "筛选",
+    "shop.filterAll": "全部",
+    "shop.filterBouquets": "花束",
+    "shop.filterSweet": "甜品礼盒",
+    "shop.filterBundle": "组合",
+    "custom.eyebrow": "你的礼物",
+    "custom.title": "按照你的想法定制花束或甜品礼盒。",
+    "custom.lead": "选择礼物类型、颜色、甜品和预算。你的想法会加入购物车，并生成 WhatsApp 消息，方便一起确认细节。",
+    "custom.formEyebrow": "手动定制",
+    "custom.giftType": "礼物类型",
+    "custom.roseCount": "玫瑰数量",
+    "custom.budget": "预算 RSD",
+    "custom.color": "主色",
+    "custom.sweets": "甜品",
+    "custom.notes": "留言、场合或风格",
+    "custom.estimate": "价格预估",
+    "custom.memorial": "送给逝者时，只能选择偶数朵玫瑰",
+    "custom.miniChocolate": "小巧克力",
+    "custom.bigChocolate": "大巧克力",
+    "custom.toy": "玩具",
+    "custom.toyColor": "玩具颜色",
+    "custom.script": "手写留言字体",
+    "custom.add": "加入定制礼物",
+    "concierge.eyebrow": "Eternior 推荐",
+    "concierge.title": "不确定选什么？",
+    "concierge.text": "输入预算、场合和风格，即可得到可加入购物车的推荐。",
+    "concierge.budget": "预算 RSD",
+    "concierge.occasion": "场合",
+    "concierge.style": "风格",
+    "concierge.generate": "推荐礼物",
+    "contact.eyebrow": "下单方式",
+    "contact.title": "所有细节都通过 WhatsApp 清楚确认。",
+    "contact.lead": "发送购物车后，我们会收到包含商品、预算、备注和配送方式的消息，然后在制作或发货前确认细节。",
+    "contact.stepOneTitle": "选择",
+    "contact.stepOneText": "选择现成商品，或按预算定制礼物。",
+    "contact.stepTwoTitle": "发送",
+    "contact.stepTwoText": "购买按钮会打开 WhatsApp，你可以检查消息后再发送。",
+    "contact.stepThreeTitle": "确认",
+    "contact.stepThreeText": "我们确认价格、时间、配送或自取。",
+    "contact.readyEyebrow": "准备好了吗？",
+    "contact.readyTitle": "从系列开始，或定制你的礼物。",
+    "footer.text": "为难忘时刻制作的缎面玫瑰、花束和甜品礼盒。",
+    "footer.contact": "联系与下单",
+    "footer.custom": "定制专属礼物",
+    "footer.shop": "查看现成礼物",
+    "footer.contactTitle": "联系",
+    "footer.location": "地点：塞尔维亚东部",
+    "footer.handmadeTitle": "手工制作",
+    "footer.handmadeText": "每一朵缎面玫瑰都由手工制作，细心组合并包装成持久的礼物。",
+    "footer.orderingTitle": "下单",
+    "footer.orderingText": "订单通过 WhatsApp 发送，并在制作或发货前确认。",
+    "footer.deliveryTitle": "配送",
+    "footer.deliveryText": "快递配送另行确认，预估约 500 RSD。",
+    "footer.personalTitle": "个性化",
+    "footer.personalText": "现成产品不能更改，但可以添加留言或小玩具。",
+    "footer.rulesTitle": "花束规则",
+    "footer.rulesText": "礼物花束使用奇数朵玫瑰。送给逝者时选择偶数朵。",
+    "footer.minBudgetTitle": "最低预算",
+    "footer.minBudgetText": "定制礼物最低预算为 1,500 RSD。",
+    "footer.deliveryShort": "配送：快递服务，约 500 RSD",
+    "footer.aboutTitle": "关于我们",
+    "footer.aboutText": "Eternior 是一个小型手工项目。作品由一位 19 岁、有 3 年经验的创意女孩制作，网站和营销由她的伴侣负责。",
+    "footer.legalTitle": "法律信息",
+    "footer.legalText": "公司名称/税号/地址可在注册后或需要时添加。",
+    "footer.confirmText": "订单只有在 WhatsApp 确认后才算确认。",
+    "faq.title": "常见问题",
+    "faq.budgetQ": "最低预算是多少？",
+    "faq.budgetA": "任何礼物的最低预算为 1,500 RSD。现成产品有固定价格，定制礼物按玫瑰和附加选项计算。",
+    "faq.deliveryQ": "配送多少钱？",
+    "faq.deliveryA": "配送费用取决于快递和目的地，通常约 500 RSD。准确金额通过 WhatsApp 确认。",
+    "faq.readyQ": "可以更改现成产品吗？",
+    "faq.readyA": "现成产品不能更改，但可以添加个性化手写留言或小玩具。",
+    "faq.rosesQ": "可以选择多少朵玫瑰？",
+    "faq.rosesA": "礼物花束使用奇数朵玫瑰。如果是送给逝者，则选择偶数朵。",
+    "faq.careQ": "缎面玫瑰如何保养？",
+    "faq.careA": "保持干燥，避免阳光直射，不要用水清洗。如有需要，可用干燥软刷轻轻清洁。",
+    add: "加入购物车",
+    detailsTitle: "产品详情",
+    readyMessage: "个性化留言",
+    readyMessagePlaceholder: "最多 200 个字符，留一点空间写完最后一个词。",
+    readyScript: "字体",
+    readyToy: "玩具",
+    readyAddonNote: "现成产品不能更改。只能添加留言或小玩具",
+    shareProduct: "分享产品",
+    suggestionTitle: "为你推荐",
+    suggestionAdd: "加入推荐",
+    suggestionDetails: "自动推荐",
+    copied: "产品链接和描述已复制。",
+    rateFallback: "汇率：1 EUR = 118 RSD",
+    rateLive: "已更新汇率：1 EUR = {rate} RSD",
+  },
+};
+
+const productText = {
+  sr: [
+    ["Aurora 7", "Buket", "7 satenskih ruža u šampanj i ivory tonovima, sa zlatnom trakom i elegantnim papirom."],
+    ["Ruby 9", "Buket", "9 crvenih satenskih ruža za romantične prilike, ručno složene u luksuzan omot."],
+    ["Noir Gold 11", "Buket", "11 crno-zlatnih satenskih ruža za dramatičan, moderan poklon koji se pamti."],
+    ["Blush 15", "Buket", "15 nežno roze satenskih ruža sa bisernim detaljem i punijim oblikom buketa."],
+    ["Royal Blue 21", "Buket", "21 plava satenska ruža sa srebrnim akcentom, za upečatljiv i elegantan utisak."],
+    ["Ivory Memory 8", "Memorial", "8 ivory satenskih ruža za miran, dostojanstven poklon namenjen preminuloj osobi."],
+    ["Sweet Mini Box", "Slatka kutija", "Kutija sa 5 satenskih ruža, Raffaello kuglicama i urednim belim pakovanjem."],
+    ["Ferrero Heart", "Slatka kutija", "Srce kutija sa 7 satenskih ruža i Ferrero Rocher kuglicama u zlatnom aranžmanu."],
+    ["Choco Bloom", "Slatka kutija", "Kvadratna kutija sa 9 satenskih ruža, malim čokoladicama i satenskom mašnom."],
+    ["Luxury Sweet Garden", "Slatka kutija", "Veća kutija sa 15 satenskih ruža, mešanim slatkišima i dekorativnim detaljima."],
+    ["Teddy Rose Box", "Kutija + igračka", "Poklon kutija sa 7 satenskih ruža, manjim medvedićem i mestom za ličnu poruku."],
+    ["Golden Proposal", "Premium buket", "25 satenskih ruža u crvenoj i zlatnoj kombinaciji, za prosidbe i velike trenutke."],
+    ["Pastel Dream", "Buket", "13 satenskih ruža u pastelnim bojama, nežan izbor za rođendan ili iznenađenje."],
+    ["Candy Pop Box", "Slatka kutija", "Šarena kutija sa 9 satenskih ruža, bombonama i veselim dekorom."],
+    ["Eternior Signature", "Premium komplet", "Buket od 19 satenskih ruža uz slatku kutiju i luksuzno pakovanje."],
+  ],
+  en: [
+    ["Aurora 7", "Bouquet", "7 satin roses in champagne and ivory tones with a gold ribbon and elegant wrapping."],
+    ["Ruby 9", "Bouquet", "9 red satin roses for romantic occasions, handmade in luxury wrapping."],
+    ["Noir Gold 11", "Bouquet", "11 black and gold satin roses for a dramatic modern gift."],
+    ["Blush 15", "Bouquet", "15 soft pink satin roses with pearl detail and a fuller bouquet shape."],
+    ["Royal Blue 21", "Bouquet", "21 blue satin roses with a silver accent for an elegant statement."],
+    ["Ivory Memory 8", "Memorial", "8 ivory satin roses for a calm, respectful memorial gift."],
+    ["Sweet Mini Box", "Sweet box", "A box with 5 satin roses, Raffaello pieces and clean white styling."],
+    ["Ferrero Heart", "Sweet box", "Heart box with 7 satin roses and Ferrero Rocher pieces in a golden arrangement."],
+    ["Choco Bloom", "Sweet box", "Square box with 9 satin roses, mini chocolates and a satin bow."],
+    ["Luxury Sweet Garden", "Sweet box", "Large box with 15 satin roses, mixed sweets and decorative details."],
+    ["Teddy Rose Box", "Box + toy", "Gift box with 7 satin roses, a small teddy bear and space for a personal note."],
+    ["Golden Proposal", "Premium bouquet", "25 satin roses in red and gold for proposals and major moments."],
+    ["Pastel Dream", "Bouquet", "13 satin roses in pastel colors, soft and sweet for birthdays or surprises."],
+    ["Candy Pop Box", "Sweet box", "Colorful box with 9 satin roses, candy and cheerful decor."],
+    ["Eternior Signature", "Premium set", "19 satin roses with a sweet box and luxury packaging."],
+  ],
+  zh: [
+    ["Aurora 7", "花束", "7 朵香槟和象牙色缎面玫瑰，配金色丝带和优雅包装。"],
+    ["Ruby 9", "花束", "9 朵红色缎面玫瑰，适合浪漫场合，手工精致包装。"],
+    ["Noir Gold 11", "花束", "11 朵黑金缎面玫瑰，现代而醒目的礼物。"],
+    ["Blush 15", "花束", "15 朵浅粉缎面玫瑰，带珍珠细节，花束更饱满。"],
+    ["Royal Blue 21", "花束", "21 朵蓝色缎面玫瑰，配银色点缀。"],
+    ["Ivory Memory 8", "纪念", "8 朵象牙白缎面玫瑰，适合纪念逝者。"],
+    ["Sweet Mini Box", "甜品礼盒", "含 5 朵缎面玫瑰、Raffaello 和白色礼盒。"],
+    ["Ferrero Heart", "甜品礼盒", "心形礼盒，含 7 朵缎面玫瑰和 Ferrero Rocher。"],
+    ["Choco Bloom", "甜品礼盒", "方形礼盒，含 9 朵缎面玫瑰、小巧克力和缎带。"],
+    ["Luxury Sweet Garden", "甜品礼盒", "大礼盒，含 15 朵缎面玫瑰、混合甜品和装饰。"],
+    ["Teddy Rose Box", "礼盒 + 玩具", "含 7 朵缎面玫瑰、小熊和个人留言位置。"],
+    ["Golden Proposal", "高级花束", "25 朵红金缎面玫瑰，适合求婚和重要时刻。"],
+    ["Pastel Dream", "花束", "13 朵柔和色缎面玫瑰，适合生日或惊喜。"],
+    ["Candy Pop Box", "甜品礼盒", "彩色礼盒，含 9 朵缎面玫瑰、糖果和活泼装饰。"],
+    ["Eternior Signature", "高级组合", "19 朵缎面玫瑰配甜品礼盒和豪华包装。"],
+  ],
+};
+
+const selectOptions = {
+  sr: {
+    giftType: ["Personalizovani satenski buket", "Personalizovana slatka kutija", "Buket + slatka kutija"],
+    roseColor: ["Šampanj", "Slonova kost", "Nežno roze", "Crvena", "Crna", "Kombinacija boja"],
+    sweets: ["Bez slatkiša", "Čokolada", "Bombone", "Mešani slatkiši", "Dogovor preko WhatsApp-a"],
+    occasion: ["Rođendan", "Godišnjica", "Izvinjenje", "Romantičan poklon", "Zahvalnost"],
+    style: ["Elegantno i nežno", "Luksuzno i dramatično", "Minimalno i moderno", "Veselo i šareno"],
+    toy: ["Bez igračke", "Mali beli medvedić", "Mali braon medvedić", "Mali roze medvedić", "Mini zeka"],
+    toyColors: ["Bela", "Braon", "Roze", "Bež"],
+    script: ["Latinica", "Ćirilica"],
+    customPlaceholder: "Na primer: crveno-zlatni buket za godišnjicu...",
+  },
+  en: {
+    giftType: ["Custom satin bouquet", "Custom sweet box", "Bouquet + sweet box"],
+    roseColor: ["Champagne", "Ivory", "Soft pink", "Red", "Black", "Mixed colors"],
+    sweets: ["No sweets", "Chocolate", "Candy", "Mixed sweets", "Decide on WhatsApp"],
+    occasion: ["Birthday", "Anniversary", "Apology", "Romantic gift", "Thank you"],
+    style: ["Elegant and soft", "Luxury and dramatic", "Minimal and modern", "Bright and colorful"],
+    toy: ["No toy", "Small white teddy bear", "Small brown teddy bear", "Small pink teddy bear", "Mini bunny"],
+    toyColors: ["White", "Brown", "Pink", "Beige"],
+    script: ["Latin", "Cyrillic"],
+    customPlaceholder: "Example: red and gold bouquet for an anniversary...",
+  },
+  zh: {
+    giftType: ["定制缎面玫瑰花束", "定制甜品礼盒", "花束 + 甜品礼盒"],
+    roseColor: ["香槟色", "象牙白", "浅粉色", "红色", "黑色", "混合颜色"],
+    sweets: ["不要甜品", "巧克力", "糖果", "混合甜品", "WhatsApp 上确认"],
+    occasion: ["生日", "周年纪念", "道歉", "浪漫礼物", "感谢"],
+    style: ["优雅温柔", "奢华醒目", "简约现代", "明亮多彩"],
+    toy: ["不要玩具", "白色小熊", "棕色小熊", "粉色小熊", "小兔子"],
+    toyColors: ["白色", "棕色", "粉色", "米色"],
+    script: ["拉丁字母", "西里尔字母"],
+    customPlaceholder: "例如：周年纪念红金色花束...",
+  },
+};
+
+const products = [
+  { id: "aurora-7", type: "bouquet", occasion: "birthday", price: 2600, roses: 7, box: "Luksuzni papir", palette: "Šampanj, ivory, zlato", visual: "champagne", colors: [["Šampanj", "#e5c27c"], ["Ivory", "#fff2d4"], ["Gold", "#c69a45"]] },
+  { id: "ruby-9", type: "bouquet", occasion: "romance", price: 3200, roses: 9, box: "Crni omot", palette: "Crvena, crna, zlato", visual: "ruby", colors: [["Crvena", "#941d35"], ["Crna", "#050505"], ["Gold", "#c69a45"]] },
+  { id: "noir-gold-11", type: "bouquet", occasion: "luxury", price: 4200, roses: 11, box: "Crni premium papir", palette: "Crna, zlatna", visual: "noir", colors: [["Crna", "#050505"], ["Gold", "#c69a45"], ["Ivory", "#fff2d4"]] },
+  { id: "blush-15", type: "bouquet", occasion: "birthday", price: 5200, roses: 15, box: "Roze omot", palette: "Nežno roze, ivory", visual: "blush", colors: [["Nežno roze", "#e6a0ad"], ["Ivory", "#fff2d4"], ["Pearl", "#f6efe4"]] },
+  { id: "royal-blue-21", type: "bouquet", occasion: "luxury", price: 7600, roses: 21, box: "Plavo-srebrni omot", palette: "Plava, srebrna", visual: "blue", colors: [["Plava", "#1c4f8c"], ["Srebro", "#d9d9d9"], ["Bela", "#fff2d4"]] },
+  { id: "ivory-memory-8", type: "memorial", occasion: "memorial", price: 3000, roses: 8, box: "Mirno ivory pakovanje", palette: "Ivory, bela", visual: "ivory", colors: [["Ivory", "#fff2d4"], ["Bela", "#ffffff"], ["Sage", "#84947f"]] },
+  { id: "sweet-mini-box", type: "sweet", occasion: "birthday", price: 3900, roses: 5, box: "Bela kutija", palette: "Ivory, zlatna", visual: "sweet", colors: [["Ivory", "#fff2d4"], ["Gold", "#c69a45"], ["Cream", "#f7e7c6"]] },
+  { id: "ferrero-heart", type: "sweet", occasion: "romance", price: 5400, roses: 7, box: "Srce kutija", palette: "Crvena, zlato", visual: "heart", colors: [["Crvena", "#941d35"], ["Gold", "#c69a45"], ["Chocolate", "#573326"]] },
+  { id: "choco-bloom", type: "sweet", occasion: "thankyou", price: 6100, roses: 9, box: "Kvadratna kutija", palette: "Braon, ivory", visual: "choco", colors: [["Mocha", "#7b4a38"], ["Ivory", "#fff2d4"], ["Gold", "#c69a45"]] },
+  { id: "luxury-sweet-garden", type: "sweet", occasion: "luxury", price: 9200, roses: 15, box: "Velika premium kutija", palette: "Crvena, crna, zlatna", visual: "garden", colors: [["Crvena", "#941d35"], ["Crna", "#050505"], ["Gold", "#c69a45"]] },
+  { id: "teddy-rose-box", type: "toy", occasion: "birthday", price: 5900, roses: 7, box: "Poklon kutija", palette: "Roze, bela", visual: "teddy", colors: [["Roze", "#e6a0ad"], ["Bela", "#ffffff"], ["Gold", "#c69a45"]] },
+  { id: "golden-proposal", type: "premium", occasion: "romance", price: 11900, roses: 25, box: "Premium buket", palette: "Crvena, zlatna", visual: "proposal", colors: [["Crvena", "#941d35"], ["Gold", "#c69a45"], ["Crna", "#050505"]] },
+  { id: "pastel-dream", type: "bouquet", occasion: "birthday", price: 4800, roses: 13, box: "Pastel papir", palette: "Lavanda, roze, ivory", visual: "pastel", colors: [["Lavanda", "#b9a4d8"], ["Roze", "#e6a0ad"], ["Ivory", "#fff2d4"]] },
+  { id: "candy-pop-box", type: "sweet", occasion: "birthday", price: 6300, roses: 9, box: "Šarena kutija", palette: "Mešane boje", visual: "candy", colors: [["Pink", "#e95588"], ["Yellow", "#f4cc4f"], ["Blue", "#67a4d9"]] },
+  { id: "eternior-signature", type: "premium", occasion: "luxury", price: 13900, roses: 19, box: "Buket + kutija", palette: "Po dogovoru", visual: "signature", colors: [["Custom", "#9f334d"], ["Gold", "#c69a45"], ["Black", "#050505"]] },
+];
+
+function t(key) {
+  return copy[state.lang][key] || copy.sr[key] || key;
+}
+
+function saveState() {
+  localStorage.setItem("eterniorCart", JSON.stringify(state.cart));
+  localStorage.setItem("eterniorLang", state.lang);
+  localStorage.setItem("eterniorCurrency", state.currency);
+  localStorage.setItem("eterniorRate", String(state.eurRsd));
+}
+
+function formatMoney(rsd) {
+  if (state.currency === "EUR") {
+    return `${(rsd / state.eurRsd).toFixed(2)} EUR`;
+  }
+  return `${Math.round(rsd).toLocaleString("sr-RS")} RSD`;
+}
+
+function hydrateProduct(product, index) {
+  const [name, category, description] = productText[state.lang][index];
+  return { ...product, name, category, description };
+}
+
+function productMatchesFilters(product) {
+  const search = document.querySelector("[data-search]")?.value.trim().toLowerCase() || "";
+  const maxBudget = Number(document.querySelector("[data-max-budget]")?.value || 0);
+  const occasion = document.querySelector("[data-occasion-filter]")?.value || "all";
+  const text = `${product.name} ${product.category} ${product.description} ${product.palette}`.toLowerCase();
+
+  if (state.activeFilter !== "all" && product.type !== state.activeFilter) return false;
+  if (occasion !== "all" && product.occasion !== occasion) return false;
+  if (maxBudget && product.price > maxBudget) return false;
+  if (search && !text.includes(search)) return false;
+  return true;
+}
+
+function getReadyProductSpecs(product) {
+  if (state.lang === "en") {
+    return [
+      "Material: satin ribbon, decorative paper/box and hand-fixed details.",
+      "Rose color: palette shown on the product card. There are 20 basic colors and several shades for future custom orders.",
+      "Packaging: luxury paper or gift box, depending on the product. The ready product cannot be changed, except for a message or a small toy.",
+      "Care: keep dry, away from direct sun, and do not wash with water.",
+      "Detail: every arrangement is handmade, so small differences make the gift unique.",
+    ];
+  }
+  if (state.lang === "zh") {
+    return [
+      "材质：缎带、装饰纸/礼盒和手工固定细节。",
+      "玫瑰颜色：以产品卡片显示的配色为准。定制订单可选择 20 种基础颜色和若干色调。",
+      "包装：根据产品使用高级包装纸或礼盒。现成产品不能更改，只能添加留言或小玩具。",
+      "保养：保持干燥，避免阳光直射，不要用水清洗。",
+      "细节：每个作品都是手工制作，细微差异让礼物更独特。",
+    ];
+  }
+  return [
+    "Materijal: satenska traka, dekorativni papir/kutija i ručno fiksirani detalji.",
+    `Boja ruža: ${product.palette}. Dostupno je 20 osnovnih boja i nekoliko nijansi za buduće personalizovane porudžbine.`,
+    `Pakovanje: ${product.box}. Gotov proizvod se ne menja, osim dodatka poruke ili male igračke.`,
+    "Održavanje: držati na suvom, dalje od direktnog sunca i ne prati vodom.",
+    "Detalj: svaki aranžman pravi se ručno, pa sitne razlike čine poklon jedinstvenim.",
+  ];
+}
+
+function renderProducts(target, limit) {
+  if (!target) return;
+  const items = products
+    .map(hydrateProduct)
+    .filter(productMatchesFilters)
+    .slice(0, limit || products.length);
+
+  target.innerHTML = items
+    .map(
+      (product) => `
+        <article class="product-card reveal" data-product-card="${product.id}">
+          <div class="product-image satin-visual visual-${product.visual}" role="img" aria-label="${product.name}">
+            <span class="satin-rose r1"></span>
+            <span class="satin-rose r2"></span>
+            <span class="satin-rose r3"></span>
+            <span class="satin-box"></span>
+          </div>
+          <div class="product-body">
+            <div class="product-meta">
+              <div>
+                <h3>${product.name}</h3>
+                <p>${product.category} | ${product.roses} ${state.lang === "sr" ? "ruža" : state.lang === "en" ? "roses" : "朵玫瑰"}</p>
+              </div>
+              <span class="price">${formatMoney(product.price)}</span>
+            </div>
+            <p class="product-description">${product.description}</p>
+            <details class="product-details">
+              <summary>${t("detailsTitle")}</summary>
+              <ul>
+                ${getReadyProductSpecs(product).map((spec) => `<li>${spec}</li>`).join("")}
+              </ul>
+            </details>
+            <div class="swatches">
+              ${product.colors.map(([label, color]) => `<span class="swatch" style="--swatch:${color}">${label}</span>`).join("")}
+            </div>
+            <div class="product-addons">
+              <label>${t("readyMessage")}
+                <textarea data-ready-message maxlength="210" rows="2" placeholder="${t("readyMessagePlaceholder")}"></textarea>
+              </label>
+              <div class="field-row">
+                <label>${t("readyScript")}
+                  <select data-ready-script>
+                    ${(selectOptions[state.lang] || selectOptions.sr).script.map((item) => `<option>${item}</option>`).join("")}
+                  </select>
+                </label>
+                <label>${t("readyToy")}
+                  <select data-ready-toy>
+                    ${(selectOptions[state.lang] || selectOptions.sr).toy.map((item) => `<option>${item}</option>`).join("")}
+                  </select>
+                </label>
+              </div>
+              <small>${t("readyAddonNote")} (+${formatMoney(STORE.toyPrice)}).</small>
+            </div>
+            <button class="button button-primary" type="button" data-add-product="${product.id}">${t("add")}</button>
+            <button class="share-button" type="button" data-share-product="${product.id}">${t("shareProduct")}</button>
+          </div>
+        </article>`
+    )
+    .join("");
+}
+
+function renderTranslations() {
+  document.documentElement.lang = state.lang === "zh" ? "zh-CN" : state.lang;
+  document.querySelectorAll("[data-i18n]").forEach((node) => {
+    node.textContent = t(node.dataset.i18n);
+  });
+  document.querySelectorAll("[data-placeholder-i18n]").forEach((node) => {
+    node.placeholder = t(node.dataset.placeholderI18n);
+  });
+  document.querySelectorAll("[data-lang]").forEach((button) => {
+    button.classList.toggle("is-active", button.dataset.lang === state.lang);
+  });
+  document.querySelectorAll("[data-currency]").forEach((button) => {
+    button.classList.toggle("is-active", button.dataset.currency === state.currency);
+  });
+  renderSelectOptions();
+}
+
+function fillSelect(name, values) {
+  const select = document.querySelector(`select[name="${name}"]`);
+  if (!select) return;
+  select.innerHTML = values.map((value) => `<option value="${value}">${value}</option>`).join("");
+}
+
+function renderSelectOptions() {
+  const options = selectOptions[state.lang] || selectOptions.sr;
+  fillSelect("giftType", options.giftType);
+  fillSelect("roseColor", options.roseColor);
+  fillSelect("sweets", options.sweets);
+  fillSelect("occasion", options.occasion);
+  fillSelect("style", options.style);
+  fillSelect("toy", options.toy);
+  fillSelect("script", options.script);
+  fillSelect("toyColor", options.toyColors || selectOptions.sr.toyColors);
+  fillOccasionFilter();
+  const notes = document.querySelector('textarea[name="notes"]');
+  if (notes) notes.placeholder = options.customPlaceholder;
+}
+
+function fillOccasionFilter() {
+  const select = document.querySelector("[data-occasion-filter]");
+  if (!select) return;
+  const current = select.value || "all";
+  const values = [
+    ["all", t("filter.allOccasions")],
+    ["birthday", t("filter.birthday")],
+    ["romance", t("filter.romance")],
+    ["luxury", t("filter.luxury")],
+    ["thankyou", t("filter.thankyou")],
+    ["memorial", t("filter.memorialOccasion")],
+  ];
+  select.innerHTML = values.map(([value, label]) => `<option value="${value}">${label}</option>`).join("");
+  select.value = values.some(([value]) => value === current) ? current : "all";
+}
+
+function renderRate() {
+  document.querySelectorAll("[data-rate-note]").forEach((node) => {
+    const live = localStorage.getItem("eterniorRateLive") === "true";
+    node.textContent = live ? t("rateLive").replace("{rate}", state.eurRsd.toFixed(2)) : t("rateFallback");
+  });
+}
+
+async function updateRate() {
+  try {
+    const response = await fetch(STORE.rateApi);
+    if (!response.ok) throw new Error("Rate unavailable");
+    const data = await response.json();
+    if (!data.rates || !data.rates.RSD) throw new Error("RSD rate missing");
+    state.eurRsd = Number(data.rates.RSD);
+    localStorage.setItem("eterniorRateLive", "true");
+  } catch {
+    state.eurRsd = STORE.fallbackEurRsd;
+    localStorage.setItem("eterniorRateLive", "false");
+  }
+  saveState();
+  renderAll();
+}
+
+function renderCart() {
+  const panel = document.querySelector("[data-cart-panel]");
+  const count = state.cart.reduce((sum, item) => sum + item.quantity, 0);
+  document.querySelectorAll("[data-cart-count]").forEach((node) => {
+    node.textContent = count;
+  });
+
+  const total = state.cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  panel.innerHTML = `
+    <div class="cart-header">
+      <div>
+        <p class="eyebrow">${t("cart.title")}</p>
+        <h2>${t("cart.title")}</h2>
+      </div>
+      <button class="icon-button" type="button" data-close-cart aria-label="${t("cart.close")}">x</button>
+    </div>
+    <div class="cart-items">
+      ${
+        state.cart.length
+          ? state.cart
+              .map(
+                (item) => `
+                  <article class="cart-item">
+                    <div>
+                      <h3>${item.name}</h3>
+                      <p>${item.details || item.category}</p>
+                      <p>${formatMoney(item.price)} / ${t("cart.each")}</p>
+                    </div>
+                    <div class="quantity">
+                      <button type="button" data-quantity="${item.id}" data-amount="-1">-</button>
+                      <strong>${item.quantity}</strong>
+                      <button type="button" data-quantity="${item.id}" data-amount="1">+</button>
+                    </div>
+                  </article>`
+              )
+              .join("")
+          : `<p class="empty-cart">${t("cart.empty")}</p>`
+      }
+    </div>
+    <div class="cart-footer">
+      <form class="checkout-form" data-checkout-form>
+        <label>${t("cart.name")}<input name="customerName" type="text" placeholder="${t("cart.name")}"></label>
+        <label>${t("cart.delivery")}
+          <select name="delivery">
+            <option>${t("cart.shipping")}</option>
+            <option>${t("cart.pickup")}</option>
+            <option>${t("cart.decide")}</option>
+          </select>
+        </label>
+        <label>${t("cart.address")}<textarea name="address" rows="3" placeholder="${t("cart.address")}"></textarea></label>
+      </form>
+      <div class="cart-total"><span>${t("cart.total")}</span><strong>${formatMoney(total)}</strong></div>
+      <button class="button button-primary" type="button" data-whatsapp-checkout>${t("cart.checkout")}</button>
+      <button class="button button-outline dark" type="button" data-clear-cart>${t("cart.clear")}</button>
+    </div>`;
+}
+
+function renderAll() {
+  renderTranslations();
+  renderRate();
+  renderProducts(document.querySelector("[data-product-grid]"));
+  renderProducts(document.querySelector("[data-featured-products]"), 3);
+  renderCart();
+  updateCustomPreview(document.querySelector("[data-custom-form]"));
+}
+
+function openCart() {
+  document.querySelector("[data-cart-panel]").classList.add("is-open");
+  document.querySelector("[data-overlay]").classList.add("is-open");
+  document.body.classList.add("no-scroll");
+}
+
+function closeCart() {
+  document.querySelector("[data-cart-panel]").classList.remove("is-open");
+  document.querySelector("[data-overlay]").classList.remove("is-open");
+  document.body.classList.remove("no-scroll");
+}
+
+function addToCart(item) {
+  const existing = state.cart.find((cartItem) => cartItem.id === item.id);
+  if (existing) {
+    existing.quantity += 1;
+  } else {
+    state.cart.push({ ...item, quantity: 1 });
+  }
+  saveState();
+  renderCart();
+  openCart();
+}
+
+function getReadyAddons(button, product) {
+  const card = button.closest("[data-product-card]");
+  const message = card?.querySelector("[data-ready-message]")?.value.trim() || "";
+  const script = card?.querySelector("[data-ready-script]")?.value || "Latinica";
+  const toy = card?.querySelector("[data-ready-toy]")?.value || "Bez igračke";
+  const hasToy = !/^Bez|^No |^不要/.test(toy);
+  const addonPrice = hasToy ? STORE.toyPrice : 0;
+  const hasAddon = Boolean(message) || hasToy;
+  const detailLabels = {
+    sr: ["satenskih ruža", "boje", "pakovanje", "ručno pisana poruka", "bez personalizovane poruke", "dodatak", "bez igračke"],
+    en: ["satin roses", "colors", "packaging", "handwritten message", "no personalized message", "addon", "no toy"],
+    zh: ["朵缎面玫瑰", "颜色", "包装", "手写留言", "无个性化留言", "附加", "不要玩具"],
+  }[state.lang] || ["satenskih ruža", "boje", "pakovanje", "ručno pisana poruka", "bez personalizovane poruke", "dodatak", "bez igračke"];
+  const details = [
+    state.lang === "zh" ? `${product.roses}${detailLabels[0]}` : `${product.roses} ${detailLabels[0]}`,
+    `${detailLabels[1]}: ${product.palette}`,
+    `${detailLabels[2]}: ${product.box}`,
+    message ? `${detailLabels[3]} (${script}): ${message}` : detailLabels[4],
+    hasToy ? `${detailLabels[5]}: ${toy}` : detailLabels[6],
+  ];
+
+  return {
+    id: hasAddon ? `${product.id}-${Date.now()}` : product.id,
+    price: product.price + addonPrice,
+    details: details.join("; "),
+  };
+}
+
+function updateQuantity(id, amount) {
+  const item = state.cart.find((cartItem) => cartItem.id === id);
+  if (!item) return;
+  item.quantity += amount;
+  if (item.quantity <= 0) {
+    state.cart = state.cart.filter((cartItem) => cartItem.id !== id);
+  }
+  saveState();
+  renderCart();
+}
+
+function getCustomPrice(form) {
+  const data = new FormData(form);
+  let roseCount = Number(data.get("roseCount")) || 1;
+  const memorial = data.get("memorial") === "on";
+  if (memorial && roseCount % 2 !== 0) roseCount += 1;
+  if (!memorial && roseCount % 2 === 0) roseCount += 1;
+
+  const sweetsTotal =
+    (Number(data.get("rafaello")) || 0) * 45 +
+    (Number(data.get("ferrero")) || 0) * 80 +
+    (Number(data.get("miniChocolate")) || 0) * 70 +
+    (Number(data.get("bigChocolate")) || 0) * 250;
+  const toy = data.get("toy") || "Bez igračke";
+  const toyTotal = /^Bez|^No |^不要/.test(toy) ? 0 : STORE.toyPrice;
+  const calculated = roseCount * STORE.rosePrice + sweetsTotal + toyTotal + 500;
+  const customerBudget = Number(data.get("budget")) || 0;
+  return Math.max(STORE.minGiftBudget, calculated, customerBudget);
+}
+
+function updateCustomPreview(form) {
+  if (!form) return;
+  const data = new FormData(form);
+  const roseInput = form.querySelector('input[name="roseCount"]');
+  const memorial = data.get("memorial") === "on";
+  let roseCount = Number(roseInput.value) || 1;
+  if (memorial && roseCount % 2 !== 0) roseCount += 1;
+  if (!memorial && roseCount % 2 === 0) roseCount += 1;
+  roseInput.value = roseCount;
+  roseInput.step = memorial ? "2" : "2";
+  if (memorial) {
+    const giftType = form.querySelector('select[name="giftType"]');
+    if (giftType) giftType.selectedIndex = 0;
+  }
+
+  form.querySelectorAll("[data-non-memorial]").forEach((node) => {
+    node.hidden = memorial;
+    node.querySelectorAll("input, select, textarea").forEach((field) => {
+      field.disabled = memorial;
+      if (memorial && field.type === "number") field.value = 0;
+      if (memorial && field.tagName === "TEXTAREA") field.value = "";
+    });
+  });
+
+  const total = getCustomPrice(form);
+  const totalNode = document.querySelector("[data-custom-total]");
+  if (totalNode) totalNode.textContent = formatMoney(total);
+
+  const notes = form.querySelector('textarea[name="notes"]');
+  const counter = document.querySelector("[data-message-counter]");
+  if (notes && counter) counter.textContent = `${notes.value.length} / 200 karaktera`;
+}
+
+function buildWhatsAppMessage() {
+  const form = document.querySelector("[data-checkout-form]");
+  const formData = form ? new FormData(form) : new FormData();
+  const total = state.cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  const lines = [
+    `Zdravo ${STORE.name}, želim da poručim:`,
+    "",
+    ...state.cart.map((item, index) => `${index + 1}. ${item.name} x ${item.quantity} - ${formatMoney(item.price * item.quantity)}${item.details ? ` | ${item.details}` : ""}`),
+    "",
+    `Ukupno približno: ${formatMoney(total)}`,
+    `Valuta na sajtu: ${state.currency}`,
+    `Ime: ${formData.get("customerName") || "Nije uneto"}`,
+    `Dostava/preuzimanje: ${formData.get("delivery") || "Dogovor"}`,
+    `Okvirna dostava: oko ${STORE.estimatedDelivery} RSD, zavisi od kurirske službe`,
+    `Adresa ili napomena: ${formData.get("address") || "Nije uneto"}`,
+    "",
+    "Molim vas da potvrdite dostupnost, konačnu cenu i način plaćanja.",
+  ];
+  return lines.join("\n");
+}
+
+function checkout() {
+  if (!state.cart.length) {
+    openCart();
+    return;
+  }
+  window.open(`https://wa.me/${STORE.whatsappNumber}?text=${encodeURIComponent(buildWhatsAppMessage())}`, "_blank", "noopener,noreferrer");
+}
+
+function handleCustom(event) {
+  event.preventDefault();
+  const data = new FormData(event.currentTarget);
+  const price = getCustomPrice(event.currentTarget);
+  const memorial = data.get("memorial") === "on";
+  const customDetails = memorial
+    ? `za preminulu osobu; ${data.get("roseCount")} ruža x ${STORE.rosePrice} RSD; boja: ${data.get("roseColor")}; bez slatkiša, igračke i poruke`
+    : `poklon aranžman, neparan broj; ${data.get("roseCount")} ruža x ${STORE.rosePrice} RSD; boja: ${data.get("roseColor")}; Raffaello: ${data.get("rafaello") || 0}; Ferrero: ${data.get("ferrero") || 0}; male čokoladice: ${data.get("miniChocolate") || 0}; velike čokolade: ${data.get("bigChocolate") || 0}; igračka: ${data.get("toy") || "bez igračke"} (${data.get("toyColor") || "-"}); poruka (${data.get("script") || "Latinica"}): ${data.get("notes") || "bez poruke"}`;
+  addToCart({
+    id: `custom-${Date.now()}`,
+    name: data.get("giftType"),
+    category: "Personalizovana porudžbina",
+    price,
+    details: customDetails,
+  });
+  event.currentTarget.reset();
+  updateCustomPreview(event.currentTarget);
+}
+
+function handleConcierge(event) {
+  event.preventDefault();
+  const data = new FormData(event.currentTarget);
+  const budget = Math.max(Number(data.get("budget")) || 0, STORE.minGiftBudget);
+  const occasion = data.get("occasion");
+  const style = data.get("style");
+  const suggestion = buildConciergeSuggestion(budget, occasion, style);
+  const target = document.querySelector("[data-suggestion]");
+  target.classList.add("is-visible");
+  target.innerHTML = `
+    <h3>${t("suggestionTitle")}</h3>
+    <p>${suggestion.name}. ${occasion} / ${style}. ${formatMoney(suggestion.price)}</p>
+    <ul>
+      ${suggestion.details.map((detail) => `<li>${detail}</li>`).join("")}
+    </ul>
+    <button class="button button-primary" type="button" data-add-suggestion="${suggestion.price}" data-suggestion-text="${suggestion.name}" data-suggestion-details="${suggestion.details.join("; ")}">${t("suggestionAdd")}</button>`;
+}
+
+function buildConciergeSuggestion(budget, occasion, style) {
+  const luxury = /luks|lux|奢/.test(String(style).toLowerCase()) || budget >= 8500;
+  const playful = /ves|bright|color|彩/.test(String(style).toLowerCase());
+  const minimal = /minim|简/.test(String(style).toLowerCase());
+  const romantic = /romanti|romantic|浪漫|godi|anniversary|周年/.test(`${occasion} ${style}`.toLowerCase());
+
+  let roses = budget >= 12000 ? 25 : budget >= 8500 ? 19 : budget >= 6000 ? 15 : budget >= 4000 ? 11 : 7;
+  if (roses % 2 === 0) roses += 1;
+
+  const allSuggestionLabels = {
+    sr: {
+      palettes: {
+        luxury: "crvena, crna i zlatna",
+        romantic: "crvena, šampanj i ivory",
+        playful: "pastelno roze, žuta i plava",
+        minimal: "ivory, bela i šampanj",
+        elegant: "nežno roze, ivory i zlato",
+      },
+      premiumBox: "premium kutija sa satenskom mašnom",
+      simpleBox: "elegantno pakovanje sa trakom",
+      sweetsHigh: "Ferrero Rocher + Raffaello + male čokoladice",
+      sweetsMid: "Raffaello i male čokoladice",
+      sweetsLow: "nekoliko Raffaello kuglica",
+      sweetsNone: "bez slatkiša, fokus na ružama",
+      toy: "mali medvedić u boji aranžmana",
+      noToy: "bez igračke",
+      messageRomantic: "kratka ručno pisana poruka u latinici",
+      messageOptional: "opciona kratka ručno pisana poruka",
+      roses: "satenskih ruža",
+      colors: "boje",
+      packaging: "pakovanje",
+      sweets: "slatkiši",
+      toyLabel: "igračka",
+      message: "poruka",
+      names: ["Eternior luksuzni predlog", "Eternior veseli predlog", "Eternior minimalistički predlog", "Eternior elegantni predlog"],
+    },
+    en: {
+      palettes: {
+        luxury: "red, black and gold",
+        romantic: "red, champagne and ivory",
+        playful: "pastel pink, yellow and blue",
+        minimal: "ivory, white and champagne",
+        elegant: "soft pink, ivory and gold",
+      },
+      premiumBox: "premium box with satin bow",
+      simpleBox: "elegant wrapping with ribbon",
+      sweetsHigh: "Ferrero Rocher + Raffaello + mini chocolates",
+      sweetsMid: "Raffaello and mini chocolates",
+      sweetsLow: "a few Raffaello pieces",
+      sweetsNone: "no sweets, focus on roses",
+      toy: "small teddy bear matching the arrangement",
+      noToy: "no toy",
+      messageRomantic: "short handwritten message in Latin script",
+      messageOptional: "optional short handwritten message",
+      roses: "satin roses",
+      colors: "colors",
+      packaging: "packaging",
+      sweets: "sweets",
+      toyLabel: "toy",
+      message: "message",
+      names: ["Eternior luxury suggestion", "Eternior playful suggestion", "Eternior minimal suggestion", "Eternior elegant suggestion"],
+    },
+    zh: {
+      palettes: {
+        luxury: "红色、黑色和金色",
+        romantic: "红色、香槟色和象牙白",
+        playful: "浅粉、黄色和蓝色",
+        minimal: "象牙白、白色和香槟色",
+        elegant: "浅粉、象牙白和金色",
+      },
+      premiumBox: "带缎带蝴蝶结的高级礼盒",
+      simpleBox: "带丝带的优雅包装",
+      sweetsHigh: "Ferrero Rocher + Raffaello + 小巧克力",
+      sweetsMid: "Raffaello 和小巧克力",
+      sweetsLow: "几颗 Raffaello",
+      sweetsNone: "不加甜品，重点是玫瑰",
+      toy: "与配色相配的小熊",
+      noToy: "不要玩具",
+      messageRomantic: "拉丁字母短手写留言",
+      messageOptional: "可选短手写留言",
+      roses: "朵缎面玫瑰",
+      colors: "颜色",
+      packaging: "包装",
+      sweets: "甜品",
+      toyLabel: "玩具",
+      message: "留言",
+      names: ["Eternior 奢华推荐", "Eternior 活泼推荐", "Eternior 简约推荐", "Eternior 优雅推荐"],
+    },
+  };
+  const labels = allSuggestionLabels[state.lang] || allSuggestionLabels.sr;
+  const palette = luxury ? labels.palettes.luxury : romantic ? labels.palettes.romantic : playful ? labels.palettes.playful : minimal ? labels.palettes.minimal : labels.palettes.elegant;
+  const box = budget >= 6500 ? labels.premiumBox : labels.simpleBox;
+  const sweets = budget >= 9000 ? labels.sweetsHigh : budget >= 5500 ? labels.sweetsMid : budget >= 3500 ? labels.sweetsLow : labels.sweetsNone;
+  const toy = budget >= 7000 && !minimal ? labels.toy : labels.noToy;
+  const message = romantic ? labels.messageRomantic : labels.messageOptional;
+  const name = luxury ? labels.names[0] : playful ? labels.names[1] : minimal ? labels.names[2] : labels.names[3];
+
+  return {
+    name,
+    price: budget,
+    details: [
+      state.lang === "zh" ? `${roses}${labels.roses}` : `${roses} ${labels.roses}`,
+      `${labels.colors}: ${palette}`,
+      `${labels.packaging}: ${box}`,
+      `${labels.sweets}: ${sweets}`,
+      `${labels.toyLabel}: ${toy}`,
+      `${labels.message}: ${message}`,
+    ],
+  };
+}
+
+async function shareProduct(product) {
+  const shareUrl = `${location.origin}${location.pathname.replace(/[^/]+$/, "shop.html")}#${product.id}`;
+  const text = `${product.name} - ${product.description} Cena: ${formatMoney(product.price)}.`;
+
+  if (navigator.share) {
+    await navigator.share({ title: product.name, text, url: shareUrl });
+    return;
+  }
+
+  await navigator.clipboard.writeText(`${text}\n${shareUrl}`);
+  alert("Link i opis proizvoda su kopirani.");
+}
+
+document.addEventListener("click", (event) => {
+  const navToggle = event.target.closest("[data-nav-toggle]");
+  const addButton = event.target.closest("[data-add-product]");
+  const quantityButton = event.target.closest("[data-quantity]");
+  const langButton = event.target.closest("[data-lang]");
+  const currencyButton = event.target.closest("[data-currency]");
+  const filterButton = event.target.closest("[data-filter]");
+  const suggestionButton = event.target.closest("[data-add-suggestion]");
+  const shareButton = event.target.closest("[data-share-product]");
+
+  if (navToggle) {
+    document.querySelector("[data-nav]").classList.toggle("is-open");
+    document.querySelector(".header-actions").classList.toggle("is-open");
+  }
+  if (addButton) {
+    const index = products.findIndex((item) => item.id === addButton.dataset.addProduct);
+    const product = hydrateProduct(products[index], index);
+    addToCart({ ...product, ...getReadyAddons(addButton, product) });
+  }
+  if (quantityButton) updateQuantity(quantityButton.dataset.quantity, Number(quantityButton.dataset.amount));
+  if (langButton) {
+    state.lang = langButton.dataset.lang;
+    saveState();
+    renderAll();
+  }
+  if (currencyButton) {
+    state.currency = currencyButton.dataset.currency;
+    saveState();
+    renderAll();
+  }
+  if (filterButton) {
+    state.activeFilter = filterButton.dataset.filter;
+    document.querySelectorAll("[data-filter]").forEach((button) => button.classList.toggle("is-active", button === filterButton));
+    renderProducts(document.querySelector("[data-product-grid]"));
+  }
+  if (event.target.closest("[data-reset-filters]")) {
+    document.querySelector("[data-search]").value = "";
+    document.querySelector("[data-max-budget]").value = "";
+    document.querySelector("[data-occasion-filter]").value = "all";
+    state.activeFilter = "all";
+    document.querySelectorAll("[data-filter]").forEach((button) => button.classList.toggle("is-active", button.dataset.filter === "all"));
+    renderProducts(document.querySelector("[data-product-grid]"));
+  }
+  if (shareButton) {
+    const index = products.findIndex((item) => item.id === shareButton.dataset.shareProduct);
+    shareProduct(hydrateProduct(products[index], index));
+  }
+  if (suggestionButton) {
+    addToCart({
+      id: `suggestion-${Date.now()}`,
+      name: suggestionButton.dataset.suggestionText,
+      category: "Eternior predlog",
+      price: Number(suggestionButton.dataset.addSuggestion),
+      details: "Predlog napravljen prema budžetu, prilici i stilu kupca.",
+    });
+  }
+  if (event.target.closest("[data-open-cart]")) openCart();
+  if (event.target.closest("[data-close-cart]") || event.target.closest("[data-overlay]")) closeCart();
+  if (event.target.closest("[data-whatsapp-checkout]")) checkout();
+  if (event.target.closest("[data-clear-cart]")) {
+    state.cart = [];
+    saveState();
+    renderCart();
+  }
+});
+
+document.addEventListener("input", (event) => {
+  if (event.target.matches("[data-search], [data-max-budget], [data-occasion-filter]")) {
+    renderProducts(document.querySelector("[data-product-grid]"));
+  }
+  if (event.target.matches("[data-price-input]")) {
+    updateCustomPreview(event.target.closest("[data-custom-form]"));
+  }
+});
+
+document.addEventListener("change", (event) => {
+  if (event.target.matches("[data-occasion-filter]")) {
+    renderProducts(document.querySelector("[data-product-grid]"));
+  }
+  if (event.target.matches("[data-price-input]")) {
+    updateCustomPreview(event.target.closest("[data-custom-form]"));
+  }
+});
+
+document.querySelectorAll(".site-nav a").forEach((link) => {
+  if (link.getAttribute("href") === location.pathname.split("/").pop()) link.setAttribute("aria-current", "page");
+});
+
+document.querySelector("[data-custom-form]")?.addEventListener("submit", handleCustom);
+document.querySelector("[data-concierge-form]")?.addEventListener("submit", handleConcierge);
+
+renderAll();
+updateRate();
+updateCustomPreview(document.querySelector("[data-custom-form]"));
