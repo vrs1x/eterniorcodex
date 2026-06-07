@@ -1,6 +1,7 @@
 const STORE = {
   name: "Eternior",
   whatsappNumber: "381611633267",
+  wechatId: "wxid_6euabvj2rpu922",
   fallbackEurRsd: 118,
   rateApi: "https://api.frankfurter.app/latest?from=EUR&to=RSD",
   rosePrice: 240,
@@ -53,21 +54,34 @@ const copy = {
     "nav.contact": "Kontakt",
     "cart.title": "Korpa",
     "cart.empty": "Korpa je trenutno prazna.",
-    "cart.checkout": "Kupi preko WhatsApp-a",
+    "cart.checkout": "Pošalji upit",
     "cart.clear": "Isprazni korpu",
     "cart.total": "Ukupno približno",
     "cart.name": "Tvoje ime",
     "cart.delivery": "Način preuzimanja",
-    "cart.address": "Adresa ili napomena",
+    "cart.address": "Adresa",
+    "cart.note": "Napomena, ako je ima",
     "cart.cityPostal": "Grad i poštanski broj",
     "cart.phone": "Broj telefona",
+    "cart.phonePrefix": "Pozivni broj",
+    "cart.phoneInvalid": "Unesi ispravan broj telefona. Za Srbiju koristi +381, bez početne nule.",
     "cart.pickupInfo": "Lično preuzimanje: Bor, 19210, Srbija",
     "cart.deliveryRequired": "Za dostavu su obavezni ime, telefon, grad sa poštanskim brojem i adresa.",
+    "cart.nameRequired": "Upiši ime pre slanja upita.",
+    "cart.requiredHint": "Polja za dostavu postaju obavezna samo kada izabereš dostavu.",
+    "cart.orderSummary": "Pregled korpe",
+    "cart.deliverySection": "Preuzimanje i dostava",
+    "cart.contactSection": "Kontakt za slanje",
+    "cart.contactApp": "Aplikacija za slanje upita",
+    "cart.whatsapp": "WhatsApp",
+    "cart.wechat": "WeChat",
+    "cart.wechatCopied": "Porudžbina je kopirana. Otvori WeChat i pošalji je na Eternior kontakt: {id}.",
     "cart.shipping": "Dostava",
     "cart.pickup": "Lično preuzimanje",
     "cart.decide": "Dogovor preko WhatsApp-a",
     "cart.each": "po komadu",
     "cart.close": "Zatvori korpu",
+    "cart.itemDetails": "Detalji porudžbine",
     "filter.search": "Pretraga",
     "filter.searchPlaceholder": "npr. crvena, kutija, Ferrero",
     "filter.budget": "Budžet do",
@@ -87,11 +101,11 @@ const copy = {
     "home.shopCta": "Pogledaj kolekciju",
     "home.customCta": "Napravi svoj poklon",
     "strip.one": "Satenske ruže koje ne venu",
-    "strip.two": "Porudžbina kroz WhatsApp",
+    "strip.two": "Porudžbina kroz WhatsApp ili WeChat",
     "strip.three": "Dostava ili lično preuzimanje",
     "home.promiseEyebrow": "Eternior doživljaj",
     "home.promiseTitle": "Izaberi poklon, pošalji poruku, dogovor završen.",
-    "home.promiseText": "Dodaj gotov proizvod ili napravi svoj buket. Kada klikneš na kupovinu, otvara se WhatsApp sa već napisanom porukom, a mi ti potvrđujemo dostupnost, cenu i način isporuke.",
+    "home.promiseText": "Dodaj gotov proizvod ili napravi svoj buket. Kada pošalješ upit, dobijamo jasnu poruku sa izborom, a mi ti potvrđujemo dostupnost, cenu i način isporuke.",
     "home.featureTitle": "Specijalno: poklon po budžetu",
     "home.featureText": "Ne moraš da znaš tačno šta želiš. Unesi budžet, priliku i stil, a Eternior predlog ide direktno u korpu kao personalizovana porudžbina.",
     "home.featureCta": "Probaj predlog",
@@ -105,9 +119,10 @@ const copy = {
     "shop.filterBouquets": "Buketi",
     "shop.filterSweet": "Slatke kutije",
     "shop.filterBundle": "Kombinacije",
+    "shop.filterPremium": "Premium",
     "custom.eyebrow": "Tvoj poklon",
     "custom.title": "Napravi buket ili slatku kutiju baš po svojoj ideji.",
-    "custom.lead": "Izaberi tip poklona, boje, slatkiše i budžet. Tvoja ideja ide u korpu, a zatim u WhatsApp poruku kako bismo zajedno potvrdili detalje.",
+    "custom.lead": "Izaberi tip poklona, boje, slatkiše i budžet. Tvoja ideja ide u korpu, a zatim u poruku kako bismo zajedno potvrdili detalje.",
     "custom.formEyebrow": "Ručno podešavanje",
     "custom.giftType": "Tip poklona",
     "custom.roseCount": "Broj ruža",
@@ -124,6 +139,35 @@ const copy = {
     "custom.applyCoupon": "Primeni kupon",
     "custom.couponHint": "Kuponi se dobijaju uz porudžbinu ili preporuku prijatelja.",
     "custom.discount": "Popust",
+    "custom.glitter": "Glitter",
+    "custom.glitterNone": "Bez glittera",
+    "custom.glitterAccent": "Glitter detalji preko ruža",
+    "custom.glitterFull": "Full glitter rose",
+    "custom.jewelry": "Dekor nakit",
+    "custom.jewelryNone": "Bez nakita",
+    "custom.zircon": "Cirkoni",
+    "custom.butterfly": "Leptirići",
+    "custom.goldCrown": "Zlatna krunica",
+    "custom.silverCrown": "Srebrna krunica",
+    "custom.multicolor": "Ruža sa više boja latica",
+    "custom.no": "Ne",
+    "custom.yesDiscuss": "Da, po dogovoru",
+    "custom.photos": "Slike u aranžmanu",
+    "custom.noPhotos": "Bez slika",
+    "custom.onePhoto": "1 slika",
+    "custom.twoPhotos": "2 slike",
+    "custom.threePhotos": "3 slike, samo veći aranžmani",
+    "custom.photoNote": "Slike se šalju naknadno preko WhatsApp-a ili WeChat-a. Na manjim buketima broj i veličina slika se potvrđuju dogovorom.",
+    "custom.ribbonText": "Traka sa natpisom",
+    "custom.ribbonPlaceholder": "npr. Srećan 30. rođendan",
+    "custom.ribbonNote": "Tekst se formira sticker slovima, ne ručno pisano. Konačan raspored potvrđujemo u poruci.",
+    "footer.top": "Povratak na vrh",
+    "footer.home": "Početna",
+    "footer.terms": "Uslovi korišćenja",
+    "footer.privacy": "Privatnost",
+    "home.salesTitle": "Poklon koji ostaje",
+    "home.salesText": "Uz svaku potvrđenu porudžbinu možeš dobiti kupon za sledeću kupovinu ili preporuku prijatelja.",
+    "home.salesCta": "Izaberi po budžetu",
     "custom.miniChocolate": "Male čokoladice",
     "custom.bigChocolate": "Velike čokolade",
     "custom.toy": "Igračka",
@@ -138,12 +182,12 @@ const copy = {
     "concierge.style": "Stil",
     "concierge.generate": "Predloži poklon",
     "contact.eyebrow": "Poručivanje",
-    "contact.title": "Sve se dogovara brzo i jasno preko WhatsApp-a.",
+    "contact.title": "Sve se dogovara brzo i jasno preko poruke.",
     "contact.lead": "Kada pošalješ korpu, dobijamo spremnu poruku sa proizvodima, budžetom, napomenama i izborom dostave. Posle toga potvrđujemo detalje pre izrade ili slanja.",
     "contact.stepOneTitle": "Izaberi",
     "contact.stepOneText": "Dodaj gotov proizvod ili napravi personalizovan poklon po budžetu.",
     "contact.stepTwoTitle": "Pošalji",
-    "contact.stepTwoText": "Klik na kupovinu otvara WhatsApp sa porukom koju možeš proveriti pre slanja.",
+    "contact.stepTwoText": "Klik na slanje upita priprema poruku koju možeš proveriti pre slanja.",
     "contact.stepThreeTitle": "Potvrdi",
     "contact.stepThreeText": "Dogovaramo cenu, rok, dostavu ili lično preuzimanje.",
     "contact.readyEyebrow": "Spreman/na?",
@@ -157,7 +201,7 @@ const copy = {
     "footer.handmadeTitle": "Ručni rad",
     "footer.handmadeText": "Svaka satenska ruža se pravi ručno, pažljivo sklapa i pakuje kao poklon koji traje.",
     "footer.orderingTitle": "Poručivanje",
-    "footer.orderingText": "Porudžbina se šalje preko WhatsApp-a i potvrđuje pre izrade ili slanja.",
+    "footer.orderingText": "Porudžbina se šalje preko WhatsApp-a ili WeChat-a i potvrđuje pre izrade ili slanja.",
     "footer.deliveryTitle": "Dostava",
     "footer.deliveryText": "Kurirska služba po dogovoru. Okvirna cena dostave je oko 500 RSD.",
     "footer.personalTitle": "Personalizacija",
@@ -171,7 +215,7 @@ const copy = {
     "footer.aboutText": "Eternior je mali ručni rad. Aranžmane pravi kreativna devojka od 19 godina, koja se ovim bavi već 3 godine, a sajt i marketing vodi njen partner.",
     "footer.legalTitle": "Pravne informacije",
     "footer.legalText": "Naziv/PIB/adresu dodati nakon registracije ili po potrebi.",
-    "footer.confirmText": "Porudžbina se potvrđuje tek nakon dogovora preko WhatsApp-a.",
+    "footer.confirmText": "Porudžbina se potvrđuje tek nakon dogovora preko poruke.",
     "faq.title": "Česta pitanja",
     "faq.budgetQ": "Koliki je minimalni budžet?",
     "faq.budgetA": "Minimalni budžet za bilo kakav poklon je 1.500 RSD. Gotovi proizvodi imaju svoju cenu, a personalizovani se računaju prema broju ruža i dodataka.",
@@ -197,6 +241,28 @@ const copy = {
     copied: "Link i opis proizvoda su kopirani.",
     rateFallback: "Kurs: 1 EUR = 118 RSD",
     rateLive: "Osvežen kurs: 1 EUR = {rate} RSD",
+    "legal.eyebrow": "Legal",
+    "terms.title": "Uslovi korišćenja",
+    "terms.lead": "Ova stranica objašnjava kako funkcioniše poručivanje preko Eternior sajta.",
+    "terms.orderTitle": "Status porudžbine",
+    "terms.orderText": "Sajt služi kao online katalog i alat za slanje upita preko WhatsApp-a ili WeChat-a. Porudžbina nije konačna dok se dostupnost, cena, rok izrade, dostava i način plaćanja ne potvrde direktno u komunikaciji.",
+    "terms.handmadeTitle": "Ručno rađeni proizvodi",
+    "terms.handmadeText": "Svaki proizvod je ručni rad, pa su mala odstupanja u nijansi, rasporedu, dekoraciji i obliku moguća. Boje na ekranu mogu izgledati drugačije nego uživo zbog osvetljenja, kamere i podešavanja ekrana.",
+    "terms.pricesTitle": "Cene i kuponi",
+    "terms.pricesText": "Cene na sajtu su okvirne i mogu se korigovati pre potvrde porudžbine ako se promeni dostupnost materijala, veličina kutije, količina slatkiša ili posebni zahtevi. Kuponi važe samo ako ih Eternior potvrdi u razgovoru.",
+    "terms.statusTitle": "Firma i odgovornost",
+    "terms.statusText": "Eternior trenutno funkcioniše kao mali kreativni projekat i nije registrovana firma. Podaci o firmi, PIB-u i formalnim pravilima biće dodati ako se status promeni. Kupac poručivanjem prihvata da se sve potvrđuje individualnim dogovorom.",
+    "privacy.eyebrow": "Privatnost",
+    "privacy.title": "Politika privatnosti",
+    "privacy.lead": "Podaci se koriste samo da bismo dogovorili i isporučili poklon.",
+    "privacy.dataTitle": "Koje podatke korisnik šalje",
+    "privacy.dataText": "Kupac može poslati ime, adresu ili napomenu za preuzimanje, izbor proizvoda, budžet, poruku za poklon i kontakt kroz WhatsApp ili WeChat.",
+    "privacy.useTitle": "Kako se podaci koriste",
+    "privacy.useText": "Podaci se koriste samo za potvrdu porudžbine, izradu poklona, dogovor oko plaćanja, dostave ili ličnog preuzimanja.",
+    "privacy.shareTitle": "Deljenje podataka",
+    "privacy.shareText": "Adresa i kontakt mogu biti prosleđeni kurirskoj službi samo ako kupac izabere dostavu. Podaci se ne prodaju i ne koriste za neovlašćeni marketing.",
+    "privacy.couponTitle": "Kuponi i preporuke",
+    "privacy.couponText": "Ako kupac koristi kupon ili preporuku, kod se može zabeležiti radi evidencije popusta i pogodnosti za buduću kupovinu.",
   },
   en: {
     "nav.home": "Home",
@@ -205,21 +271,34 @@ const copy = {
     "nav.contact": "Contact",
     "cart.title": "Cart",
     "cart.empty": "Your cart is empty.",
-    "cart.checkout": "Buy on WhatsApp",
+    "cart.checkout": "Send inquiry",
     "cart.clear": "Clear cart",
     "cart.total": "Estimated total",
     "cart.name": "Your name",
     "cart.delivery": "Delivery option",
-    "cart.address": "Address or note",
+    "cart.address": "Address",
+    "cart.note": "Note, if any",
     "cart.cityPostal": "City and postal code",
     "cart.phone": "Phone number",
+    "cart.phonePrefix": "Country code",
+    "cart.phoneInvalid": "Enter a valid phone number. For Serbia use +381 and remove the leading zero.",
     "cart.pickupInfo": "Pickup location: Bor, 19210, Serbia",
     "cart.deliveryRequired": "For delivery, name, phone, city with postal code and address are required.",
+    "cart.nameRequired": "Enter your name before sending the inquiry.",
+    "cart.requiredHint": "Delivery fields become required only when shipping is selected.",
+    "cart.orderSummary": "Cart summary",
+    "cart.deliverySection": "Pickup and delivery",
+    "cart.contactSection": "Contact for sending",
+    "cart.contactApp": "App for sending inquiry",
+    "cart.whatsapp": "WhatsApp",
+    "cart.wechat": "WeChat",
+    "cart.wechatCopied": "The order was copied. Open WeChat and send it to the Eternior contact: {id}.",
     "cart.shipping": "Shipping",
     "cart.pickup": "Local pickup",
     "cart.decide": "Decide on WhatsApp",
     "cart.each": "each",
     "cart.close": "Close cart",
+    "cart.itemDetails": "Order details",
     "filter.search": "Search",
     "filter.searchPlaceholder": "e.g. red, box, Ferrero",
     "filter.budget": "Budget up to",
@@ -239,11 +318,11 @@ const copy = {
     "home.shopCta": "View collection",
     "home.customCta": "Create your gift",
     "strip.one": "Satin roses that do not fade",
-    "strip.two": "Order through WhatsApp",
+    "strip.two": "Order through WhatsApp or WeChat",
     "strip.three": "Shipping or local pickup",
     "home.promiseEyebrow": "Eternior experience",
     "home.promiseTitle": "Choose a gift, send a message, confirm everything.",
-    "home.promiseText": "Add a ready product or create your bouquet. When you tap buy, WhatsApp opens with the order message prepared, and we confirm availability, price and delivery.",
+    "home.promiseText": "Add a ready product or create your bouquet. When you send the inquiry, we receive a clear order message and confirm availability, price and delivery.",
     "home.featureTitle": "Special: gift by budget",
     "home.featureText": "You do not need to know exactly what you want. Enter your budget, occasion and style, and an Eternior suggestion goes straight into your cart.",
     "home.featureCta": "Try suggestion",
@@ -257,9 +336,10 @@ const copy = {
     "shop.filterBouquets": "Bouquets",
     "shop.filterSweet": "Sweet boxes",
     "shop.filterBundle": "Bundles",
+    "shop.filterPremium": "Premium",
     "custom.eyebrow": "Your gift",
     "custom.title": "Create a bouquet or sweet box from your own idea.",
-    "custom.lead": "Choose the gift type, colors, sweets and budget. Your idea goes into the cart and then into a WhatsApp message so we can confirm the details together.",
+    "custom.lead": "Choose the gift type, colors, sweets and budget. Your idea goes into the cart and then into a message so we can confirm the details together.",
     "custom.formEyebrow": "Manual builder",
     "custom.giftType": "Gift type",
     "custom.roseCount": "Number of roses",
@@ -276,6 +356,35 @@ const copy = {
     "custom.applyCoupon": "Apply coupon",
     "custom.couponHint": "Coupons are received with an order or by referring a friend.",
     "custom.discount": "Discount",
+    "custom.glitter": "Glitter",
+    "custom.glitterNone": "No glitter",
+    "custom.glitterAccent": "Glitter accents over roses",
+    "custom.glitterFull": "Full glitter rose",
+    "custom.jewelry": "Decor jewelry",
+    "custom.jewelryNone": "No jewelry",
+    "custom.zircon": "Rhinestones",
+    "custom.butterfly": "Butterflies",
+    "custom.goldCrown": "Gold crown",
+    "custom.silverCrown": "Silver crown",
+    "custom.multicolor": "One rose with multiple petal colors",
+    "custom.no": "No",
+    "custom.yesDiscuss": "Yes, by agreement",
+    "custom.photos": "Photos in arrangement",
+    "custom.noPhotos": "No photos",
+    "custom.onePhoto": "1 photo",
+    "custom.twoPhotos": "2 photos",
+    "custom.threePhotos": "3 photos, larger arrangements only",
+    "custom.photoNote": "Photos are sent later through WhatsApp or WeChat. On smaller bouquets, size and quantity are confirmed by agreement.",
+    "custom.ribbonText": "Ribbon text",
+    "custom.ribbonPlaceholder": "e.g. Happy 30th birthday",
+    "custom.ribbonNote": "Text is made from sticker letters, not handwritten. Final placement is confirmed in chat.",
+    "footer.top": "Back to top",
+    "footer.home": "Home",
+    "footer.terms": "Terms",
+    "footer.privacy": "Privacy",
+    "home.salesTitle": "A gift that stays",
+    "home.salesText": "With every confirmed order, you can receive a coupon for your next purchase or a friend referral.",
+    "home.salesCta": "Choose by budget",
     "custom.miniChocolate": "Mini chocolates",
     "custom.bigChocolate": "Large chocolates",
     "custom.toy": "Toy",
@@ -290,12 +399,12 @@ const copy = {
     "concierge.style": "Style",
     "concierge.generate": "Suggest a gift",
     "contact.eyebrow": "Ordering",
-    "contact.title": "Everything is confirmed clearly through WhatsApp.",
+    "contact.title": "Everything is confirmed clearly through chat.",
     "contact.lead": "When you send the cart, we receive a prepared message with products, budget, notes and delivery choice. Then we confirm the details before making or shipping.",
     "contact.stepOneTitle": "Choose",
     "contact.stepOneText": "Add a ready product or create a custom gift by budget.",
     "contact.stepTwoTitle": "Send",
-    "contact.stepTwoText": "The buy button opens WhatsApp with a message you can check before sending.",
+    "contact.stepTwoText": "The inquiry button prepares a message you can check before sending.",
     "contact.stepThreeTitle": "Confirm",
     "contact.stepThreeText": "We agree on price, timing, shipping or local pickup.",
     "contact.readyEyebrow": "Ready?",
@@ -309,7 +418,7 @@ const copy = {
     "footer.handmadeTitle": "Handmade",
     "footer.handmadeText": "Each satin rose is handmade, carefully arranged and packed as a gift that lasts.",
     "footer.orderingTitle": "Ordering",
-    "footer.orderingText": "The order is sent through WhatsApp and confirmed before making or shipping.",
+    "footer.orderingText": "The order is sent through WhatsApp or WeChat and confirmed before making or shipping.",
     "footer.deliveryTitle": "Delivery",
     "footer.deliveryText": "Courier delivery by agreement. Estimated delivery is around 500 RSD.",
     "footer.personalTitle": "Personalization",
@@ -323,7 +432,7 @@ const copy = {
     "footer.aboutText": "Eternior is a small handmade project. The arrangements are made by a creative 19-year-old who has been doing this for 3 years, while her partner handles the website and marketing.",
     "footer.legalTitle": "Legal information",
     "footer.legalText": "Business name/tax ID/address can be added after registration or when needed.",
-    "footer.confirmText": "The order is confirmed only after agreement through WhatsApp.",
+    "footer.confirmText": "The order is confirmed only after agreement through chat.",
     "faq.title": "FAQ",
     "faq.budgetQ": "What is the minimum budget?",
     "faq.budgetA": "The minimum budget for any gift is 1,500 RSD. Ready products have fixed prices, while personalized gifts are calculated by roses and add-ons.",
@@ -349,6 +458,28 @@ const copy = {
     copied: "Product link and description copied.",
     rateFallback: "Rate: 1 EUR = 118 RSD",
     rateLive: "Updated rate: 1 EUR = {rate} RSD",
+    "legal.eyebrow": "Legal",
+    "terms.title": "Terms of Use",
+    "terms.lead": "This page explains how ordering through the Eternior website works.",
+    "terms.orderTitle": "Order Status",
+    "terms.orderText": "The website is an online catalog and inquiry tool for WhatsApp or WeChat. An order is not final until availability, price, production time, delivery and payment method are confirmed directly in chat.",
+    "terms.handmadeTitle": "Handmade Products",
+    "terms.handmadeText": "Every product is handmade, so small differences in shade, layout, decoration and shape are possible. Screen colors may differ from real life because of lighting, camera and display settings.",
+    "terms.pricesTitle": "Prices and Coupons",
+    "terms.pricesText": "Website prices are estimates and may be adjusted before confirmation if material availability, box size, sweet quantity or special requests change. Coupons apply only after Eternior confirms them in chat.",
+    "terms.statusTitle": "Business Status and Liability",
+    "terms.statusText": "Eternior currently operates as a small creative project and is not a registered company. Company details, tax number and formal rules will be added if the status changes. By ordering, the customer accepts that everything is confirmed by individual agreement.",
+    "privacy.eyebrow": "Privacy",
+    "privacy.title": "Privacy Policy",
+    "privacy.lead": "Data is used only to arrange and deliver the gift.",
+    "privacy.dataTitle": "What Data the Customer Sends",
+    "privacy.dataText": "The customer may send a name, delivery address or pickup note, product choices, budget, gift message and contact through WhatsApp or WeChat.",
+    "privacy.useTitle": "How Data Is Used",
+    "privacy.useText": "Data is used only to confirm the order, make the gift, arrange payment, delivery or local pickup.",
+    "privacy.shareTitle": "Data Sharing",
+    "privacy.shareText": "Address and contact may be shared with a courier only if the customer chooses delivery. Data is not sold and is not used for unauthorized marketing.",
+    "privacy.couponTitle": "Coupons and Referrals",
+    "privacy.couponText": "If the customer uses a coupon or referral, the code may be recorded for discount and future-benefit tracking.",
   },
   zh: {
     "nav.home": "首页",
@@ -357,21 +488,34 @@ const copy = {
     "nav.contact": "联系",
     "cart.title": "购物车",
     "cart.empty": "购物车是空的。",
-    "cart.checkout": "通过 WhatsApp 购买",
+    "cart.checkout": "发送订单咨询",
     "cart.clear": "清空购物车",
     "cart.total": "预估总价",
     "cart.name": "你的姓名",
     "cart.delivery": "取货方式",
-    "cart.address": "地址或备注",
+    "cart.address": "地址",
+    "cart.note": "备注（如有）",
     "cart.cityPostal": "城市和邮编",
     "cart.phone": "电话号码",
+    "cart.phonePrefix": "国家/地区代码",
+    "cart.phoneInvalid": "请输入有效电话号码。塞尔维亚号码请选择 +381，并去掉开头的 0。",
     "cart.pickupInfo": "自取地点：Bor, 19210, Serbia",
     "cart.deliveryRequired": "配送需要姓名、电话、城市和邮编以及地址。",
+    "cart.nameRequired": "发送咨询前请输入姓名。",
+    "cart.requiredHint": "只有选择配送时，配送信息才为必填。",
+    "cart.orderSummary": "购物车摘要",
+    "cart.deliverySection": "自取和配送",
+    "cart.contactSection": "发送方式",
+    "cart.contactApp": "发送咨询的应用",
+    "cart.whatsapp": "WhatsApp",
+    "cart.wechat": "微信",
+    "cart.wechatCopied": "订单已复制。请打开微信并发送给 Eternior 联系人：{id}。",
     "cart.shipping": "配送",
     "cart.pickup": "自取",
     "cart.decide": "WhatsApp 上确认",
     "cart.each": "每件",
     "cart.close": "关闭购物车",
+    "cart.itemDetails": "订单详情",
     "filter.search": "搜索",
     "filter.searchPlaceholder": "例如：红色、礼盒、Ferrero",
     "filter.budget": "预算上限",
@@ -391,11 +535,11 @@ const copy = {
     "home.shopCta": "查看系列",
     "home.customCta": "定制礼物",
     "strip.one": "不会凋谢的缎面玫瑰",
-    "strip.two": "WhatsApp 下单",
+    "strip.two": "WhatsApp 或微信下单",
     "strip.three": "配送或自取",
     "home.promiseEyebrow": "Eternior 体验",
     "home.promiseTitle": "选择礼物，发送消息，确认细节。",
-    "home.promiseText": "可以选择现成商品，也可以定制花束。点击购买后，WhatsApp 会打开已准备好的订单消息，我们会确认库存、价格和配送。",
+    "home.promiseText": "可以选择现成商品，也可以定制花束。发送咨询后，我们会收到清楚的订单内容，并确认库存、价格和配送。",
     "home.featureTitle": "特色：按预算推荐礼物",
     "home.featureText": "不确定要选什么也没关系。输入预算、场合和风格，Eternior 推荐会直接加入购物车。",
     "home.featureCta": "试试推荐",
@@ -409,9 +553,10 @@ const copy = {
     "shop.filterBouquets": "花束",
     "shop.filterSweet": "甜品礼盒",
     "shop.filterBundle": "组合",
+    "shop.filterPremium": "高级",
     "custom.eyebrow": "你的礼物",
     "custom.title": "按照你的想法定制花束或甜品礼盒。",
-    "custom.lead": "选择礼物类型、颜色、甜品和预算。你的想法会加入购物车，并生成 WhatsApp 消息，方便一起确认细节。",
+    "custom.lead": "选择礼物类型、颜色、甜品和预算。你的想法会加入购物车，并生成订单消息，方便一起确认细节。",
     "custom.formEyebrow": "手动定制",
     "custom.giftType": "礼物类型",
     "custom.roseCount": "玫瑰数量",
@@ -428,6 +573,35 @@ const copy = {
     "custom.applyCoupon": "使用优惠码",
     "custom.couponHint": "优惠码可通过订单或推荐朋友获得。",
     "custom.discount": "折扣",
+    "custom.glitter": "闪粉",
+    "custom.glitterNone": "不要闪粉",
+    "custom.glitterAccent": "玫瑰闪粉细节",
+    "custom.glitterFull": "整朵闪粉玫瑰",
+    "custom.jewelry": "装饰配件",
+    "custom.jewelryNone": "不要装饰",
+    "custom.zircon": "水钻",
+    "custom.butterfly": "蝴蝶装饰",
+    "custom.goldCrown": "金色小皇冠",
+    "custom.silverCrown": "银色小皇冠",
+    "custom.multicolor": "一朵玫瑰多色花瓣",
+    "custom.no": "否",
+    "custom.yesDiscuss": "是，需确认",
+    "custom.photos": "加入照片",
+    "custom.noPhotos": "不要照片",
+    "custom.onePhoto": "1 张照片",
+    "custom.twoPhotos": "2 张照片",
+    "custom.threePhotos": "3 张照片，仅限较大作品",
+    "custom.photoNote": "照片稍后通过 WhatsApp 或微信发送。较小花束的照片数量和尺寸需要确认。",
+    "custom.ribbonText": "丝带文字",
+    "custom.ribbonPlaceholder": "例如：30岁生日快乐",
+    "custom.ribbonNote": "文字由贴纸字母组成，不是手写。最终位置在聊天中确认。",
+    "footer.top": "返回顶部",
+    "footer.home": "首页",
+    "footer.terms": "条款",
+    "footer.privacy": "隐私",
+    "home.salesTitle": "一份会留下来的礼物",
+    "home.salesText": "每一笔确认订单都有机会获得下次购买或推荐朋友的优惠码。",
+    "home.salesCta": "按预算选择",
     "custom.miniChocolate": "小巧克力",
     "custom.bigChocolate": "大巧克力",
     "custom.toy": "玩具",
@@ -442,12 +616,12 @@ const copy = {
     "concierge.style": "风格",
     "concierge.generate": "推荐礼物",
     "contact.eyebrow": "下单方式",
-    "contact.title": "所有细节都通过 WhatsApp 清楚确认。",
+    "contact.title": "所有细节都通过聊天清楚确认。",
     "contact.lead": "发送购物车后，我们会收到包含商品、预算、备注和配送方式的消息，然后在制作或发货前确认细节。",
     "contact.stepOneTitle": "选择",
     "contact.stepOneText": "选择现成商品，或按预算定制礼物。",
     "contact.stepTwoTitle": "发送",
-    "contact.stepTwoText": "购买按钮会打开 WhatsApp，你可以检查消息后再发送。",
+    "contact.stepTwoText": "发送咨询按钮会准备订单消息，你可以检查后再发送。",
     "contact.stepThreeTitle": "确认",
     "contact.stepThreeText": "我们确认价格、时间、配送或自取。",
     "contact.readyEyebrow": "准备好了吗？",
@@ -461,7 +635,7 @@ const copy = {
     "footer.handmadeTitle": "手工制作",
     "footer.handmadeText": "每一朵缎面玫瑰都由手工制作，细心组合并包装成持久的礼物。",
     "footer.orderingTitle": "下单",
-    "footer.orderingText": "订单通过 WhatsApp 发送，并在制作或发货前确认。",
+    "footer.orderingText": "订单可通过 WhatsApp 或微信发送，并在制作或发货前确认。",
     "footer.deliveryTitle": "配送",
     "footer.deliveryText": "快递配送另行确认，预估约 500 RSD。",
     "footer.personalTitle": "个性化",
@@ -475,7 +649,7 @@ const copy = {
     "footer.aboutText": "Eternior 是一个小型手工项目。作品由一位 19 岁、有 3 年经验的创意女孩制作，网站和营销由她的伴侣负责。",
     "footer.legalTitle": "法律信息",
     "footer.legalText": "公司名称/税号/地址可在注册后或需要时添加。",
-    "footer.confirmText": "订单只有在 WhatsApp 确认后才算确认。",
+    "footer.confirmText": "订单只有在聊天确认后才算确认。",
     "faq.title": "常见问题",
     "faq.budgetQ": "最低预算是多少？",
     "faq.budgetA": "任何礼物的最低预算为 1,500 RSD。现成产品有固定价格，定制礼物按玫瑰和附加选项计算。",
@@ -501,6 +675,28 @@ const copy = {
     copied: "产品链接和描述已复制。",
     rateFallback: "汇率：1 EUR = 118 RSD",
     rateLive: "已更新汇率：1 EUR = {rate} RSD",
+    "legal.eyebrow": "法律信息",
+    "terms.title": "使用条款",
+    "terms.lead": "本页说明如何通过 Eternior 网站下单。",
+    "terms.orderTitle": "订单状态",
+    "terms.orderText": "本网站是在线目录和咨询工具，可通过 WhatsApp 或微信发送询问。只有在聊天中确认库存、价格、制作时间、配送和付款方式后，订单才算最终确认。",
+    "terms.handmadeTitle": "手工产品",
+    "terms.handmadeText": "每件产品都是手工制作，颜色、布局、装饰和形状可能会有细微差异。由于光线、相机和屏幕设置，屏幕颜色可能与实物不同。",
+    "terms.pricesTitle": "价格和优惠码",
+    "terms.pricesText": "网站价格为估算价格。如果材料供应、礼盒尺寸、甜品数量或特殊要求发生变化，确认订单前价格可能调整。优惠码需由 Eternior 在聊天中确认后生效。",
+    "terms.statusTitle": "经营状态和责任",
+    "terms.statusText": "Eternior 目前是小型创意项目，尚未注册为公司。如果状态发生变化，将补充公司信息、税号和正式规则。客户下单即表示接受所有细节需单独确认。",
+    "privacy.eyebrow": "隐私",
+    "privacy.title": "隐私政策",
+    "privacy.lead": "信息仅用于确认和配送礼物。",
+    "privacy.dataTitle": "客户发送的信息",
+    "privacy.dataText": "客户可以通过 WhatsApp 或微信发送姓名、配送地址或自取备注、产品选择、预算、礼物留言和联系方式。",
+    "privacy.useTitle": "信息如何使用",
+    "privacy.useText": "信息仅用于确认订单、制作礼物、安排付款、配送或自取。",
+    "privacy.shareTitle": "信息分享",
+    "privacy.shareText": "只有客户选择配送时，地址和联系方式才可能提供给快递公司。信息不会出售，也不会用于未经授权的营销。",
+    "privacy.couponTitle": "优惠码和推荐",
+    "privacy.couponText": "如果客户使用优惠码或推荐码，该代码可能会被记录，用于折扣和后续优惠统计。",
   },
 };
 
@@ -616,6 +812,26 @@ const rosePalette = [
   { sr: "Srebrna", en: "Silver", zh: "银色", color: "#d9d9d9" },
   { sr: "Crna", en: "Black", zh: "黑色", color: "#050505" },
 ];
+
+const colorLabels = {
+  Gold: { sr: "Zlatna", en: "Gold", zh: "金色" },
+  Ivory: { sr: "Ivory", en: "Ivory", zh: "象牙白" },
+  Pearl: { sr: "Biserna", en: "Pearl", zh: "珍珠色" },
+  Sage: { sr: "Sage zelena", en: "Sage green", zh: "鼠尾草绿" },
+  Chocolate: { sr: "Čokoladna", en: "Chocolate", zh: "巧克力色" },
+  Mocha: { sr: "Mocha", en: "Mocha", zh: "摩卡色" },
+  Blue: { sr: "Plava", en: "Blue", zh: "蓝色" },
+  Yellow: { sr: "Žuta", en: "Yellow", zh: "黄色" },
+  Black: { sr: "Crna", en: "Black", zh: "黑色" },
+  Custom: { sr: "Po dogovoru", en: "Custom", zh: "定制" },
+  Cream: { sr: "Krem", en: "Cream", zh: "奶油色" },
+  Silver: { sr: "Srebrna", en: "Silver", zh: "银色" },
+  Srebro: { sr: "Srebrna", en: "Silver", zh: "银色" },
+  Pink: { sr: "Pink", en: "Pink", zh: "粉色" },
+  Lavanda: { sr: "Lavanda", en: "Lavender", zh: "薰衣草色" },
+  "Nežno roze": { sr: "Nežno roze", en: "Soft pink", zh: "浅粉色" },
+  Roze: { sr: "Roze", en: "Pink", zh: "粉色" },
+};
 
 const sweetPrices = {
   rafaello: 70,
@@ -740,7 +956,7 @@ function renderProducts(target, limit) {
               </ul>
             </details>
             <div class="swatches">
-              ${product.colors.map(([label, color]) => `<span class="swatch" style="--swatch:${color}">${label}</span>`).join("")}
+              ${product.colors.map(([label, color]) => `<span class="swatch" style="--swatch:${color}">${translateColorLabel(label)}</span>`).join("")}
             </div>
             <div class="product-addons">
               <label>${t("readyMessage")}
@@ -798,6 +1014,12 @@ function renderColorPalette() {
 function getColorSr(value) {
   const found = rosePalette.find((item) => [item.sr, item.en, item.zh].includes(value));
   return found ? found.sr : value;
+}
+
+function translateColorLabel(label) {
+  const found = rosePalette.find((item) => [item.sr, item.en, item.zh].includes(label));
+  if (found) return found[state.lang] || found.sr;
+  return colorLabels[label]?.[state.lang] || label;
 }
 
 function fillSelect(name, values) {
@@ -877,16 +1099,17 @@ function renderCart() {
       <button class="icon-button" type="button" data-close-cart aria-label="${t("cart.close")}">x</button>
     </div>
     <div class="cart-items">
+      <p class="cart-section-title">${t("cart.orderSummary")}</p>
       ${
         state.cart.length
           ? state.cart
               .map(
                 (item) => `
                   <article class="cart-item">
-                    <div>
+                    <div class="cart-item-copy">
                       <h3>${item.name}</h3>
-                      <p>${item.details || item.category}</p>
-                      <p>${formatMoney(item.price)} / ${t("cart.each")}</p>
+                      ${renderCartItemDetails(item)}
+                      <p class="cart-unit-price">${formatMoney(item.price)} / ${t("cart.each")}</p>
                     </div>
                     <div class="quantity">
                       <button type="button" data-quantity="${item.id}" data-amount="-1">-</button>
@@ -901,24 +1124,78 @@ function renderCart() {
     </div>
     <div class="cart-footer">
       <form class="checkout-form" data-checkout-form>
-        <label>${t("cart.name")}<input name="customerName" type="text" placeholder="${t("cart.name")}"></label>
-        <label>${t("cart.delivery")}
-          <select name="delivery">
-            <option>${t("cart.shipping")}</option>
-            <option>${t("cart.pickup")}</option>
-            <option>${t("cart.decide")}</option>
-          </select>
-        </label>
-        <label>${t("cart.phone")}<input name="phone" type="tel" placeholder="+381 6x xxx xxxx"></label>
-        <label>${t("cart.cityPostal")}<input name="cityPostal" type="text" placeholder="Bor 19210"></label>
-        <label>${t("cart.address")}<textarea name="address" rows="3" placeholder="${t("cart.address")}"></textarea></label>
-        <p class="builder-note">${t("cart.pickupInfo")}</p>
+        <div class="checkout-section">
+          <p class="cart-section-title">${t("cart.deliverySection")}</p>
+          <label>${t("cart.name")}<input name="customerName" type="text" placeholder="${t("cart.name")}" autocomplete="name"></label>
+          <label>${t("cart.delivery")}
+            <select name="delivery">
+              <option>${t("cart.decide")}</option>
+              <option>${t("cart.pickup")}</option>
+              <option>${t("cart.shipping")}</option>
+            </select>
+          </label>
+          <div class="delivery-fields" data-delivery-fields>
+            <div class="phone-row">
+              <label>${t("cart.phonePrefix")}
+                <select name="phonePrefix">
+                  <option value="+381">+381 Srbija</option>
+                  <option value="+86">+86 China</option>
+                  <option value="+382">+382 Montenegro</option>
+                  <option value="+387">+387 Bosnia</option>
+                  <option value="+385">+385 Croatia</option>
+                  <option value="+389">+389 North Macedonia</option>
+                  <option value="+49">+49 Germany</option>
+                  <option value="+43">+43 Austria</option>
+                  <option value="+41">+41 Switzerland</option>
+                  <option value="+39">+39 Italy</option>
+                  <option value="+33">+33 France</option>
+                  <option value="+44">+44 UK</option>
+                  <option value="+1">+1 USA/Canada</option>
+                  <option value="+7">+7 Russia</option>
+                  <option value="+90">+90 Turkey</option>
+                </select>
+              </label>
+              <label>${t("cart.phone")}<input name="phone" type="tel" inputmode="tel" placeholder="61 123 4567" autocomplete="tel"></label>
+            </div>
+            <label>${t("cart.cityPostal")}<input name="cityPostal" type="text" placeholder="Bor 19210" autocomplete="postal-code"></label>
+            <label>${t("cart.address")}<textarea name="address" rows="3" placeholder="${t("cart.address")}" autocomplete="street-address"></textarea></label>
+          </div>
+          <label>${t("cart.note")}<textarea name="orderNote" rows="2" placeholder="${t("cart.note")}"></textarea></label>
+          <p class="builder-note" data-pickup-note>${t("cart.pickupInfo")}</p>
+          <p class="builder-note">${t("cart.requiredHint")}</p>
+        </div>
+        <div class="checkout-section">
+          <p class="cart-section-title">${t("cart.contactSection")}</p>
+          <label>${t("cart.contactApp")}
+            <select name="contactApp">
+              <option value="whatsapp">${t("cart.whatsapp")}</option>
+              <option value="wechat" ${state.lang === "zh" ? "selected" : ""}>${t("cart.wechat")}</option>
+            </select>
+          </label>
+        </div>
         <p class="coupon-status" data-checkout-error></p>
       </form>
       <div class="cart-total"><span>${t("cart.total")}</span><strong>${formatMoney(total)}</strong></div>
       <button class="button button-primary" type="button" data-whatsapp-checkout>${t("cart.checkout")}</button>
       <button class="button button-outline dark" type="button" data-clear-cart>${t("cart.clear")}</button>
     </div>`;
+  syncCheckoutDeliveryFields();
+}
+
+function renderCartItemDetails(item) {
+  const details = item.details || item.category || "";
+  const parts = String(details)
+    .split(/\s*[;|]\s*/g)
+    .map((part) => part.trim())
+    .filter(Boolean);
+  if (parts.length <= 1) return `<p class="cart-short-detail">${details}</p>`;
+  return `
+    <details class="cart-item-details" open>
+      <summary>${t("cart.itemDetails")}</summary>
+      <ul>
+        ${parts.map((part) => `<li>${part}</li>`).join("")}
+      </ul>
+    </details>`;
 }
 
 function renderAll() {
@@ -1137,6 +1414,10 @@ function updateCustomPreview(form) {
 function buildWhatsAppMessage() {
   const form = document.querySelector("[data-checkout-form]");
   const formData = form ? new FormData(form) : new FormData();
+  const contactApp = formData.get("contactApp") === "wechat" ? "WeChat" : "WhatsApp";
+  const delivery = normalizeDeliverySr(formData.get("delivery"));
+  const orderNote = String(formData.get("orderNote") || "").trim();
+  const phone = normalizePhone(formData.get("phonePrefix"), formData.get("phone"));
   const total = state.cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
   const lines = [
     `Zdravo ${STORE.name}, želim da poručim:`,
@@ -1145,12 +1426,20 @@ function buildWhatsAppMessage() {
     "",
     `Ukupno približno: ${formatMoney(total)}`,
     `Valuta na sajtu: ${state.currency}`,
+    `Kupac želi komunikaciju preko: ${contactApp}${contactApp === "WeChat" ? ` (${STORE.wechatId})` : ""}`,
     `Ime: ${formData.get("customerName") || "Nije uneto"}`,
-    `Telefon: ${formData.get("phone") || "Nije uneto"}`,
-    `Dostava/preuzimanje: ${normalizeDeliverySr(formData.get("delivery"))}`,
-    `Grad i poštanski broj: ${formData.get("cityPostal") || (normalizeDeliverySr(formData.get("delivery")) === "Lično preuzimanje" ? "Bor 19210" : "Nije uneto")}`,
-    `Okvirna dostava: oko ${STORE.estimatedDelivery} RSD, zavisi od kurirske službe`,
-    `Adresa ili napomena: ${formData.get("address") || "Nije uneto"}`,
+    `Dostava/preuzimanje: ${delivery}`,
+    ...(delivery === "Dostava"
+      ? [
+          `Telefon: ${phone || "Nije uneto"}`,
+          `Grad i poštanski broj: ${formData.get("cityPostal") || "Nije uneto"}`,
+          `Adresa: ${formData.get("address") || "Nije uneto"}`,
+          `Okvirna dostava: oko ${STORE.estimatedDelivery} RSD, zavisi od kurirske službe`,
+        ]
+      : delivery === "Lično preuzimanje"
+        ? ["Mesto preuzimanja: Bor, 19210, Srbija"]
+        : []),
+    ...(orderNote ? [`Napomena kupca: ${orderNote}`] : []),
     "",
     "Molim vas da potvrdite dostupnost, konačnu cenu i način plaćanja.",
   ];
@@ -1164,21 +1453,97 @@ function normalizeDeliverySr(value) {
   return "Dostava";
 }
 
+function normalizePhone(prefix, rawPhone) {
+  const code = String(prefix || "+381").replace(/[^\d+]/g, "") || "+381";
+  let local = String(rawPhone || "").replace(/[^\d]/g, "");
+  if (local.startsWith("00")) local = local.slice(2);
+  const codeDigits = code.replace(/\D/g, "");
+  if (local.startsWith(codeDigits)) local = local.slice(codeDigits.length);
+  if (code === "+381" && local.startsWith("0")) local = local.slice(1);
+  return `${code}${local}`;
+}
+
+function isValidPhone(prefix, rawPhone) {
+  const code = String(prefix || "+381");
+  const local = String(rawPhone || "").replace(/[^\d]/g, "");
+  const normalized = normalizePhone(code, rawPhone);
+  const digits = normalized.replace(/\D/g, "");
+  if (code === "+381" && /^0/.test(local)) return false;
+  if (code === "+381") return /^3816\d{7,8}$/.test(digits);
+  return digits.length >= 8 && digits.length <= 15;
+}
+
+function syncCheckoutDeliveryFields() {
+  const form = document.querySelector("[data-checkout-form]");
+  if (!form) return;
+  const delivery = normalizeDeliverySr(form.querySelector('select[name="delivery"]')?.value);
+  const isShipping = delivery === "Dostava";
+  const isPickup = delivery === "Lično preuzimanje";
+  const fields = form.querySelector("[data-delivery-fields]");
+  const pickupNote = form.querySelector("[data-pickup-note]");
+  if (fields) {
+    fields.hidden = !isShipping;
+    fields.querySelectorAll("input, textarea").forEach((field) => {
+      field.disabled = !isShipping;
+      field.required = isShipping;
+      if (!isShipping) field.value = "";
+    });
+  }
+  if (pickupNote) pickupNote.hidden = !isPickup;
+}
+
 function validateCheckout() {
   const form = document.querySelector("[data-checkout-form]");
   if (!form) return true;
+  syncCheckoutDeliveryFields();
   const data = new FormData(form);
   const delivery = normalizeDeliverySr(data.get("delivery"));
   const required = ["customerName"];
   if (delivery === "Dostava") required.push("phone", "cityPostal", "address");
   const missing = required.filter((name) => !String(data.get(name) || "").trim());
   const error = form.querySelector("[data-checkout-error]");
+  form.querySelectorAll(".is-invalid").forEach((field) => field.classList.remove("is-invalid"));
+  if (delivery === "Dostava" && !missing.includes("phone") && !isValidPhone(data.get("phonePrefix"), data.get("phone"))) {
+    const phone = form.elements.phone;
+    if (phone) {
+      phone.classList.add("is-invalid");
+      phone.focus();
+      phone.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+    if (error) error.textContent = t("cart.phoneInvalid");
+    return false;
+  }
   if (missing.length) {
-    if (error) error.textContent = t("cart.deliveryRequired");
+    const first = form.elements[missing[0]];
+    if (first) {
+      first.classList.add("is-invalid");
+      first.focus();
+      first.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+    if (error) error.textContent = delivery === "Dostava" ? t("cart.deliveryRequired") : t("cart.nameRequired");
     return false;
   }
   if (error) error.textContent = "";
   return true;
+}
+
+function openWhatsAppOrder(message) {
+  const url = `https://wa.me/${STORE.whatsappNumber}?text=${encodeURIComponent(message)}`;
+  const opened = window.open(url, "_blank");
+  if (!opened) window.location.href = url;
+}
+
+function openWeChatOrder(message) {
+  const notice = t("cart.wechatCopied").replace("{id}", STORE.wechatId);
+  const copyOrder = navigator.clipboard?.writeText ? navigator.clipboard.writeText(message) : Promise.reject();
+  copyOrder.then(() => {
+    alert(notice);
+  }).catch(() => {
+    window.prompt(notice, message);
+  });
+  setTimeout(() => {
+    window.location.href = "weixin://";
+  }, 250);
 }
 
 function checkout() {
@@ -1187,7 +1552,14 @@ function checkout() {
     return;
   }
   if (!validateCheckout()) return;
-  window.open(`https://wa.me/${STORE.whatsappNumber}?text=${encodeURIComponent(buildWhatsAppMessage())}`, "_blank", "noopener,noreferrer");
+  const form = document.querySelector("[data-checkout-form]");
+  const contactApp = form ? new FormData(form).get("contactApp") : "whatsapp";
+  const message = buildWhatsAppMessage();
+  if (contactApp === "wechat") {
+    openWeChatOrder(message);
+    return;
+  }
+  openWhatsAppOrder(message);
 }
 
 function handleCustom(event) {
@@ -1380,7 +1752,16 @@ document.addEventListener("click", (event) => {
   const suggestionButton = event.target.closest("[data-add-suggestion]");
   const shareButton = event.target.closest("[data-share-product]");
   const paletteButton = event.target.closest("[data-palette-color]");
+  const backToTop = event.target.closest('a[href="#top"]');
 
+  if (backToTop) {
+    event.preventDefault();
+    document.querySelector("[data-nav]")?.classList.remove("is-open");
+    document.querySelector(".header-actions")?.classList.remove("is-open");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+  }
   if (navToggle) {
     document.querySelector("[data-nav]").classList.toggle("is-open");
     document.querySelector(".header-actions").classList.toggle("is-open");
@@ -1469,6 +1850,10 @@ document.addEventListener("input", (event) => {
 });
 
 document.addEventListener("change", (event) => {
+  if (event.target.matches('select[name="delivery"]')) {
+    syncCheckoutDeliveryFields();
+    validateCheckout();
+  }
   if (event.target.matches("[data-occasion-filter]")) {
     renderProducts(document.querySelector("[data-product-grid]"));
   }
@@ -1478,6 +1863,13 @@ document.addEventListener("change", (event) => {
   if (event.target.matches('select[name="roseColor"]')) {
     renderColorPalette();
     updateCustomPreview(event.target.closest("[data-custom-form]"));
+  }
+});
+
+document.addEventListener("submit", (event) => {
+  if (event.target.matches("[data-checkout-form]")) {
+    event.preventDefault();
+    checkout();
   }
 });
 
