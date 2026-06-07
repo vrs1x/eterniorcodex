@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="sr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Uslovi korišćenja | Eternior</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="site-header" id="top">
+      <a class="brand" href="index.html" aria-label="Eternior početna">
+        <img src="assets/eternior_logo.webp" alt="Eternior logo" width="150" height="84" />
+      </a>
+      <button class="nav-toggle" type="button" data-nav-toggle aria-label="Otvori meni">
+        <span></span><span></span><span></span>
+      </button>
+      <nav class="site-nav" data-nav>
+        <a href="index.html" data-i18n="nav.home">Početna</a>
+        <a href="shop.html" data-i18n="nav.shop">Prodavnica</a>
+        <a href="custom.html" data-i18n="nav.custom">Kreiraj poklon</a>
+        <a href="contact.html" data-i18n="nav.contact">Kontakt</a>
+      </nav>
+      <div class="header-actions">
+        <div class="language-switcher" aria-label="Promena jezika">
+          <button type="button" data-lang="sr" class="is-active">SR</button>
+          <button type="button" data-lang="en">EN</button>
+          <button type="button" data-lang="zh">中文</button>
+        </div>
+        <div class="currency-toggle compact" aria-label="Valuta">
+          <button type="button" data-currency="RSD" class="is-active">RSD</button>
+          <button type="button" data-currency="EUR">EUR</button>
+        </div>
+        <button class="cart-toggle" type="button" data-open-cart aria-label="Otvori korpu">
+          <span data-i18n="cart.title">Korpa</span>
+          <b data-cart-count>0</b>
+        </button>
+      </div>
+    </header>
+    <main>
+      <section class="page-hero">
+        <p class="eyebrow">Legal</p>
+        <h1>Uslovi korišćenja</h1>
+        <p>Ova stranica objašnjava kako funkcioniše poručivanje preko Eternior sajta.</p>
+      </section>
+      <section class="section-shell legal-page">
+        <h2>Status porudžbine</h2>
+        <p>Sajt služi kao online katalog i alat za slanje upita preko WhatsApp-a. Porudžbina nije konačna dok se dostupnost, cena, rok izrade, dostava i način plaćanja ne potvrde direktno u WhatsApp komunikaciji.</p>
+        <h2>Ručno rađeni proizvodi</h2>
+        <p>Svaki proizvod je ručni rad, pa su mala odstupanja u nijansi, rasporedu, dekoraciji i obliku moguća. Boje na ekranu mogu izgledati drugačije nego uživo zbog osvetljenja, kamere i podešavanja ekrana.</p>
+        <h2>Cene i kuponi</h2>
+        <p>Cene na sajtu su okvirne i mogu se korigovati pre potvrde porudžbine ako se promeni dostupnost materijala, veličina kutije, količina slatkiša ili posebni zahtevi. Kuponi važe samo ako ih Eternior potvrdi u razgovoru.</p>
+        <h2>Firma i odgovornost</h2>
+        <p>Eternior trenutno funkcioniše kao mali kreativni projekat i nije registrovana firma. Podaci o firmi, PIB-u i formalnim pravilima biće dodati ako se status promeni. Kupac poručivanjem prihvata da se sve potvrđuje individualnim dogovorom.</p>
+      </section>
+    </main>
+    <aside class="cart-panel" data-cart-panel aria-hidden="true"></aside>
+    <div class="overlay" data-overlay></div>
+    <script src="script.js"></script>
+  </body>
+</html>

@@ -12,7 +12,7 @@
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body data-page="contact">
-    <header class="site-header">
+    <header class="site-header" id="top">
       <a class="brand" href="index.html" aria-label="Eternior početna">
         <img src="assets/eternior_logo.webp" alt="Eternior logo" width="150" height="84" />
       </a>
@@ -30,6 +30,10 @@
           <button type="button" data-lang="sr" class="is-active">SR</button>
           <button type="button" data-lang="en">EN</button>
           <button type="button" data-lang="zh">中文</button>
+        </div>
+        <div class="currency-toggle compact" aria-label="Valuta">
+          <button type="button" data-currency="RSD" class="is-active">RSD</button>
+          <button type="button" data-currency="EUR">EUR</button>
         </div>
         <button class="cart-toggle" type="button" data-open-cart aria-label="Otvori korpu">
           <span data-i18n="cart.title">Korpa</span>
@@ -127,6 +131,12 @@
           <h3 data-i18n="footer.legalTitle">Pravne informacije</h3>
           <p data-i18n="footer.legalText">Naziv/PIB/adresu dodati nakon registracije ili po potrebi.</p>
           <p data-i18n="footer.confirmText">Porudžbina se potvrđuje tek nakon dogovora preko WhatsApp-a.</p>
+          <div class="footer-legal-links">
+            <a href="#top">Povratak na vrh</a>
+            <a href="index.html">Početna</a>
+            <a href="terms.html">Uslovi korišćenja</a>
+            <a href="privacy.html">Privatnost</a>
+          </div>
         </div>
       </div>
     </footer>

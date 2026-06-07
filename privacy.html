@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="sr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Politika privatnosti | Eternior</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="site-header" id="top">
+      <a class="brand" href="index.html" aria-label="Eternior početna">
+        <img src="assets/eternior_logo.webp" alt="Eternior logo" width="150" height="84" />
+      </a>
+      <button class="nav-toggle" type="button" data-nav-toggle aria-label="Otvori meni">
+        <span></span><span></span><span></span>
+      </button>
+      <nav class="site-nav" data-nav>
+        <a href="index.html" data-i18n="nav.home">Početna</a>
+        <a href="shop.html" data-i18n="nav.shop">Prodavnica</a>
+        <a href="custom.html" data-i18n="nav.custom">Kreiraj poklon</a>
+        <a href="contact.html" data-i18n="nav.contact">Kontakt</a>
+      </nav>
+      <div class="header-actions">
+        <div class="language-switcher" aria-label="Promena jezika">
+          <button type="button" data-lang="sr" class="is-active">SR</button>
+          <button type="button" data-lang="en">EN</button>
+          <button type="button" data-lang="zh">中文</button>
+        </div>
+        <div class="currency-toggle compact" aria-label="Valuta">
+          <button type="button" data-currency="RSD" class="is-active">RSD</button>
+          <button type="button" data-currency="EUR">EUR</button>
+        </div>
+        <button class="cart-toggle" type="button" data-open-cart aria-label="Otvori korpu">
+          <span data-i18n="cart.title">Korpa</span>
+          <b data-cart-count>0</b>
+        </button>
+      </div>
+    </header>
+    <main>
+      <section class="page-hero">
+        <p class="eyebrow">Privatnost</p>
+        <h1>Politika privatnosti</h1>
+        <p>Podaci se koriste samo da bismo dogovorili i isporučili poklon.</p>
+      </section>
+      <section class="section-shell legal-page">
+        <h2>Koje podatke korisnik šalje</h2>
+        <p>Kupac može poslati ime, adresu ili napomenu za preuzimanje, izbor proizvoda, budžet, poruku za poklon i kontakt kroz WhatsApp.</p>
+        <h2>Kako se podaci koriste</h2>
+        <p>Podaci se koriste samo za potvrdu porudžbine, izradu poklona, dogovor oko plaćanja, dostave ili ličnog preuzimanja.</p>
+        <h2>Deljenje podataka</h2>
+        <p>Adresa i kontakt mogu biti prosleđeni kurirskoj službi samo ako kupac izabere dostavu. Podaci se ne prodaju i ne koriste za neovlašćeni marketing.</p>
+        <h2>Kuponi i preporuke</h2>
+        <p>Ako kupac koristi kupon ili preporuku, kod se može zabeležiti radi evidencije popusta i pogodnosti za buduću kupovinu.</p>
+      </section>
+    </main>
+    <aside class="cart-panel" data-cart-panel aria-hidden="true"></aside>
+    <div class="overlay" data-overlay></div>
+    <script src="script.js"></script>
+  </body>
+</html>

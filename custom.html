@@ -12,7 +12,7 @@
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body data-page="custom">
-    <header class="site-header">
+    <header class="site-header" id="top">
       <a class="brand" href="index.html" aria-label="Eternior početna">
         <img src="assets/eternior_logo.webp" alt="Eternior logo" width="150" height="84" />
       </a>
@@ -30,6 +30,10 @@
           <button type="button" data-lang="sr" class="is-active">SR</button>
           <button type="button" data-lang="en">EN</button>
           <button type="button" data-lang="zh">中文</button>
+        </div>
+        <div class="currency-toggle compact" aria-label="Valuta">
+          <button type="button" data-currency="RSD" class="is-active">RSD</button>
+          <button type="button" data-currency="EUR">EUR</button>
         </div>
         <button class="cart-toggle" type="button" data-open-cart aria-label="Otvori korpu">
           <span data-i18n="cart.title">Korpa</span>
@@ -55,6 +59,7 @@
             <span data-i18n="custom.estimate">Procena cene</span>
             <strong data-custom-total>1.500 RSD</strong>
           </div>
+          <p class="builder-note" data-i18n="custom.pricingNote">Cena uključuje materijal, ručni rad, pakovanje i rezervu za završnu obradu.</p>
           <label>
             <span data-i18n="custom.giftType">Tip poklona</span>
             <select name="giftType">
@@ -88,6 +93,55 @@
               <option>Kombinacija boja</option>
             </select>
           </label>
+          <div class="field-row" data-non-memorial>
+            <label>
+              Glitter
+              <select name="glitter" data-price-input>
+                <option value="none">Bez glittera</option>
+                <option value="accent">Glitter detalji preko ruža</option>
+                <option value="full">Full glitter rose</option>
+              </select>
+            </label>
+            <label>
+              Dekor nakit
+              <select name="jewelry" data-price-input>
+                <option value="none">Bez nakita</option>
+                <option value="zircon">Cirkoni</option>
+                <option value="butterfly">Leptirići</option>
+                <option value="gold-crown">Zlatna krunica</option>
+                <option value="silver-crown">Srebrna krunica</option>
+              </select>
+            </label>
+          </div>
+          <div class="field-row" data-non-memorial>
+            <label>
+              Ruža sa više boja latica
+              <select name="multicolorPetals" data-price-input>
+                <option value="no">Ne</option>
+                <option value="yes">Da, po dogovoru</option>
+              </select>
+            </label>
+            <label>
+              Slike u aranžmanu
+              <select name="photoCount" data-price-input>
+                <option value="0">Bez slika</option>
+                <option value="1">1 slika</option>
+                <option value="2">2 slike</option>
+                <option value="3">3 slike, samo veći aranžmani</option>
+              </select>
+              <small>Slike se šalju naknadno preko WhatsApp-a. Na manjim buketima broj i veličina slika se potvrđuju dogovorom.</small>
+            </label>
+          </div>
+          <label data-non-memorial>
+            Traka sa natpisom
+            <input name="ribbonText" type="text" maxlength="60" placeholder="npr. Srećan 30. rođendan" data-price-input />
+            <small>Tekst se formira sticker slovima, ne ručno pisano. Konačan raspored potvrđujemo preko WhatsApp-a.</small>
+          </label>
+          <div class="color-picker-block">
+            <p class="eyebrow" data-i18n="custom.paletteTitle">Paleta ruža</p>
+            <div class="color-palette" data-color-palette></div>
+            <p class="color-note" data-i18n="custom.colorNote">Boje su okvirne. Nijansa može da odstupa zbog svetla, ekrana i dostupnosti satenske trake.</p>
+          </div>
           <label data-non-memorial>
             <span data-i18n="custom.sweets">Slatkiši</span>
             <select name="sweets">
@@ -143,6 +197,14 @@
               <option>Ćirilica</option>
             </select>
           </label>
+          <div class="coupon-box" data-non-memorial>
+            <label>
+              <span data-i18n="custom.coupon">Kupon kod</span>
+              <input name="coupon" type="text" data-price-input placeholder="ETERNIOR10" />
+            </label>
+            <small data-i18n="custom.couponHint">Kuponi se dobijaju uz porudžbinu ili preporuku prijatelja.</small>
+            <p class="coupon-status" data-coupon-status></p>
+          </div>
           <button class="button button-primary" type="submit" data-i18n="custom.add">Dodaj personalizovan poklon</button>
         </form>
 
@@ -201,6 +263,12 @@
           <h3 data-i18n="footer.contactTitle">Kontakt</h3>
           <p>WhatsApp: +381 61 1633267</p>
           <a href="shop.html" data-i18n="footer.shop">Pogledaj gotove poklone</a>
+          <div class="footer-legal-links">
+            <a href="#top">Povratak na vrh</a>
+            <a href="index.html">Početna</a>
+            <a href="terms.html">Uslovi korišćenja</a>
+            <a href="privacy.html">Privatnost</a>
+          </div>
         </div>
       </div>
     </footer>

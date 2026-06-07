@@ -3,10 +3,37 @@ const STORE = {
   whatsappNumber: "381611633267",
   fallbackEurRsd: 118,
   rateApi: "https://api.frankfurter.app/latest?from=EUR&to=RSD",
-  rosePrice: 200,
-  toyPrice: 500,
+  rosePrice: 240,
+  roseCost: 18,
+  toyPrice: 850,
+  toyCost: 400,
   minGiftBudget: 1500,
   estimatedDelivery: 500,
+  laborBase: 900,
+  laborPerRose: 35,
+  bouquetWrapCost: 350,
+  boxSmallCost: 450,
+  boxMediumCost: 700,
+  boxLargeCost: 1050,
+  targetMargin: 0.52,
+};
+
+const COUPONS = {
+  ETERNIOR10: { percent: 10, label: "10% popusta" },
+  ETERNIOR20: { percent: 20, label: "20% popusta" },
+  FRIEND15: { percent: 15, label: "15% za preporuku" },
+  POVRATAK20: { percent: 20, label: "20% za sledeću kupovinu" },
+};
+
+const ADDON_PRICES = {
+  glitterAccent: 350,
+  glitterFull: 900,
+  jewelryZircon: 350,
+  jewelryButterfly: 450,
+  jewelryCrown: 500,
+  ribbonText: 650,
+  multicolorPetals: 450,
+  photo: 750,
 };
 
 const state = {
@@ -15,6 +42,7 @@ const state = {
   currency: localStorage.getItem("eterniorCurrency") || "RSD",
   eurRsd: Number(localStorage.getItem("eterniorRate")) || STORE.fallbackEurRsd,
   activeFilter: "all",
+  latestSuggestion: null,
 };
 
 const copy = {
@@ -31,6 +59,10 @@ const copy = {
     "cart.name": "Tvoje ime",
     "cart.delivery": "Način preuzimanja",
     "cart.address": "Adresa ili napomena",
+    "cart.cityPostal": "Grad i poštanski broj",
+    "cart.phone": "Broj telefona",
+    "cart.pickupInfo": "Lično preuzimanje: Bor, 19210, Srbija",
+    "cart.deliveryRequired": "Za dostavu su obavezni ime, telefon, grad sa poštanskim brojem i adresa.",
     "cart.shipping": "Dostava",
     "cart.pickup": "Lično preuzimanje",
     "cart.decide": "Dogovor preko WhatsApp-a",
@@ -85,6 +117,13 @@ const copy = {
     "custom.notes": "Poruka, prilika ili stil",
     "custom.estimate": "Procena cene",
     "custom.memorial": "Za preminulu osobu, dozvoljen je samo paran broj ruža",
+    "custom.colorNote": "Boje su okvirne. Nijansa može da odstupa zbog svetla, ekrana i dostupnosti satenske trake.",
+    "custom.paletteTitle": "Paleta ruža",
+    "custom.pricingNote": "Cena uključuje materijal, ručni rad, pakovanje i rezervu za završnu obradu.",
+    "custom.coupon": "Kupon kod",
+    "custom.applyCoupon": "Primeni kupon",
+    "custom.couponHint": "Kuponi se dobijaju uz porudžbinu ili preporuku prijatelja.",
+    "custom.discount": "Popust",
     "custom.miniChocolate": "Male čokoladice",
     "custom.bigChocolate": "Velike čokolade",
     "custom.toy": "Igračka",
@@ -172,6 +211,10 @@ const copy = {
     "cart.name": "Your name",
     "cart.delivery": "Delivery option",
     "cart.address": "Address or note",
+    "cart.cityPostal": "City and postal code",
+    "cart.phone": "Phone number",
+    "cart.pickupInfo": "Pickup location: Bor, 19210, Serbia",
+    "cart.deliveryRequired": "For delivery, name, phone, city with postal code and address are required.",
     "cart.shipping": "Shipping",
     "cart.pickup": "Local pickup",
     "cart.decide": "Decide on WhatsApp",
@@ -226,6 +269,13 @@ const copy = {
     "custom.notes": "Message, occasion or style",
     "custom.estimate": "Price estimate",
     "custom.memorial": "For a deceased person, only an even number of roses is allowed",
+    "custom.colorNote": "Colors are approximate. The shade may differ because of lighting, screens and satin ribbon availability.",
+    "custom.paletteTitle": "Rose palette",
+    "custom.pricingNote": "Price includes materials, handmade work, packaging and finishing buffer.",
+    "custom.coupon": "Coupon code",
+    "custom.applyCoupon": "Apply coupon",
+    "custom.couponHint": "Coupons are received with an order or by referring a friend.",
+    "custom.discount": "Discount",
     "custom.miniChocolate": "Mini chocolates",
     "custom.bigChocolate": "Large chocolates",
     "custom.toy": "Toy",
@@ -313,6 +363,10 @@ const copy = {
     "cart.name": "你的姓名",
     "cart.delivery": "取货方式",
     "cart.address": "地址或备注",
+    "cart.cityPostal": "城市和邮编",
+    "cart.phone": "电话号码",
+    "cart.pickupInfo": "自取地点：Bor, 19210, Serbia",
+    "cart.deliveryRequired": "配送需要姓名、电话、城市和邮编以及地址。",
     "cart.shipping": "配送",
     "cart.pickup": "自取",
     "cart.decide": "WhatsApp 上确认",
@@ -367,6 +421,13 @@ const copy = {
     "custom.notes": "留言、场合或风格",
     "custom.estimate": "价格预估",
     "custom.memorial": "送给逝者时，只能选择偶数朵玫瑰",
+    "custom.colorNote": "颜色仅供参考。由于光线、屏幕和缎带库存，实际色调可能不同。",
+    "custom.paletteTitle": "玫瑰颜色",
+    "custom.pricingNote": "价格包含材料、手工制作、包装和收尾成本。",
+    "custom.coupon": "优惠码",
+    "custom.applyCoupon": "使用优惠码",
+    "custom.couponHint": "优惠码可通过订单或推荐朋友获得。",
+    "custom.discount": "折扣",
     "custom.miniChocolate": "小巧克力",
     "custom.bigChocolate": "大巧克力",
     "custom.toy": "玩具",
@@ -533,22 +594,52 @@ const selectOptions = {
   },
 };
 
+const rosePalette = [
+  { sr: "Bela", en: "White", zh: "白色", color: "#fffaf1" },
+  { sr: "Ivory", en: "Ivory", zh: "象牙白", color: "#fff2d4" },
+  { sr: "Šampanj", en: "Champagne", zh: "香槟色", color: "#e5c27c" },
+  { sr: "Zlatna", en: "Gold", zh: "金色", color: "#c69a45" },
+  { sr: "Žuta", en: "Yellow", zh: "黄色", color: "#f4cc4f" },
+  { sr: "Narandžasta", en: "Orange", zh: "橙色", color: "#e87d37" },
+  { sr: "Breskva", en: "Peach", zh: "蜜桃色", color: "#f2a983" },
+  { sr: "Nežno roze", en: "Soft pink", zh: "浅粉色", color: "#e6a0ad" },
+  { sr: "Pink", en: "Pink", zh: "粉色", color: "#e95588" },
+  { sr: "Crvena", en: "Red", zh: "红色", color: "#941d35" },
+  { sr: "Bordo", en: "Burgundy", zh: "酒红色", color: "#5c1528" },
+  { sr: "Lavanda", en: "Lavender", zh: "薰衣草紫", color: "#b9a4d8" },
+  { sr: "Ljubičasta", en: "Purple", zh: "紫色", color: "#6b3fa0" },
+  { sr: "Plava", en: "Blue", zh: "蓝色", color: "#1c4f8c" },
+  { sr: "Tirkizna", en: "Turquoise", zh: "绿松石色", color: "#2ca6a4" },
+  { sr: "Mint", en: "Mint", zh: "薄荷绿", color: "#99cdb5" },
+  { sr: "Zelena", en: "Green", zh: "绿色", color: "#6f7b68" },
+  { sr: "Braon", en: "Brown", zh: "棕色", color: "#7b4a38" },
+  { sr: "Srebrna", en: "Silver", zh: "银色", color: "#d9d9d9" },
+  { sr: "Crna", en: "Black", zh: "黑色", color: "#050505" },
+];
+
+const sweetPrices = {
+  rafaello: 70,
+  ferrero: 110,
+  miniChocolate: 120,
+  bigChocolate: 380,
+};
+
 const products = [
-  { id: "aurora-7", type: "bouquet", occasion: "birthday", price: 2600, roses: 7, box: "Luksuzni papir", palette: "Šampanj, ivory, zlato", visual: "champagne", colors: [["Šampanj", "#e5c27c"], ["Ivory", "#fff2d4"], ["Gold", "#c69a45"]] },
-  { id: "ruby-9", type: "bouquet", occasion: "romance", price: 3200, roses: 9, box: "Crni omot", palette: "Crvena, crna, zlato", visual: "ruby", colors: [["Crvena", "#941d35"], ["Crna", "#050505"], ["Gold", "#c69a45"]] },
-  { id: "noir-gold-11", type: "bouquet", occasion: "luxury", price: 4200, roses: 11, box: "Crni premium papir", palette: "Crna, zlatna", visual: "noir", colors: [["Crna", "#050505"], ["Gold", "#c69a45"], ["Ivory", "#fff2d4"]] },
-  { id: "blush-15", type: "bouquet", occasion: "birthday", price: 5200, roses: 15, box: "Roze omot", palette: "Nežno roze, ivory", visual: "blush", colors: [["Nežno roze", "#e6a0ad"], ["Ivory", "#fff2d4"], ["Pearl", "#f6efe4"]] },
-  { id: "royal-blue-21", type: "bouquet", occasion: "luxury", price: 7600, roses: 21, box: "Plavo-srebrni omot", palette: "Plava, srebrna", visual: "blue", colors: [["Plava", "#1c4f8c"], ["Srebro", "#d9d9d9"], ["Bela", "#fff2d4"]] },
-  { id: "ivory-memory-8", type: "memorial", occasion: "memorial", price: 3000, roses: 8, box: "Mirno ivory pakovanje", palette: "Ivory, bela", visual: "ivory", colors: [["Ivory", "#fff2d4"], ["Bela", "#ffffff"], ["Sage", "#84947f"]] },
-  { id: "sweet-mini-box", type: "sweet", occasion: "birthday", price: 3900, roses: 5, box: "Bela kutija", palette: "Ivory, zlatna", visual: "sweet", colors: [["Ivory", "#fff2d4"], ["Gold", "#c69a45"], ["Cream", "#f7e7c6"]] },
-  { id: "ferrero-heart", type: "sweet", occasion: "romance", price: 5400, roses: 7, box: "Srce kutija", palette: "Crvena, zlato", visual: "heart", colors: [["Crvena", "#941d35"], ["Gold", "#c69a45"], ["Chocolate", "#573326"]] },
-  { id: "choco-bloom", type: "sweet", occasion: "thankyou", price: 6100, roses: 9, box: "Kvadratna kutija", palette: "Braon, ivory", visual: "choco", colors: [["Mocha", "#7b4a38"], ["Ivory", "#fff2d4"], ["Gold", "#c69a45"]] },
-  { id: "luxury-sweet-garden", type: "sweet", occasion: "luxury", price: 9200, roses: 15, box: "Velika premium kutija", palette: "Crvena, crna, zlatna", visual: "garden", colors: [["Crvena", "#941d35"], ["Crna", "#050505"], ["Gold", "#c69a45"]] },
-  { id: "teddy-rose-box", type: "toy", occasion: "birthday", price: 5900, roses: 7, box: "Poklon kutija", palette: "Roze, bela", visual: "teddy", colors: [["Roze", "#e6a0ad"], ["Bela", "#ffffff"], ["Gold", "#c69a45"]] },
-  { id: "golden-proposal", type: "premium", occasion: "romance", price: 11900, roses: 25, box: "Premium buket", palette: "Crvena, zlatna", visual: "proposal", colors: [["Crvena", "#941d35"], ["Gold", "#c69a45"], ["Crna", "#050505"]] },
-  { id: "pastel-dream", type: "bouquet", occasion: "birthday", price: 4800, roses: 13, box: "Pastel papir", palette: "Lavanda, roze, ivory", visual: "pastel", colors: [["Lavanda", "#b9a4d8"], ["Roze", "#e6a0ad"], ["Ivory", "#fff2d4"]] },
-  { id: "candy-pop-box", type: "sweet", occasion: "birthday", price: 6300, roses: 9, box: "Šarena kutija", palette: "Mešane boje", visual: "candy", colors: [["Pink", "#e95588"], ["Yellow", "#f4cc4f"], ["Blue", "#67a4d9"]] },
-  { id: "eternior-signature", type: "premium", occasion: "luxury", price: 13900, roses: 19, box: "Buket + kutija", palette: "Po dogovoru", visual: "signature", colors: [["Custom", "#9f334d"], ["Gold", "#c69a45"], ["Black", "#050505"]] },
+  { id: "aurora-7", type: "bouquet", occasion: "birthday", price: 3200, roses: 7, box: "Luksuzni papir", palette: "Šampanj, ivory, zlato", visual: "champagne", colors: [["Šampanj", "#e5c27c"], ["Ivory", "#fff2d4"], ["Gold", "#c69a45"]] },
+  { id: "ruby-9", type: "bouquet", occasion: "romance", price: 3900, roses: 9, box: "Crni omot", palette: "Crvena, crna, zlato", visual: "ruby", colors: [["Crvena", "#941d35"], ["Crna", "#050505"], ["Gold", "#c69a45"]] },
+  { id: "noir-gold-11", type: "bouquet", occasion: "luxury", price: 5200, roses: 11, box: "Crni premium papir", palette: "Crna, zlatna", visual: "noir", colors: [["Crna", "#050505"], ["Gold", "#c69a45"], ["Ivory", "#fff2d4"]] },
+  { id: "blush-15", type: "bouquet", occasion: "birthday", price: 6500, roses: 15, box: "Roze omot", palette: "Nežno roze, ivory", visual: "blush", colors: [["Nežno roze", "#e6a0ad"], ["Ivory", "#fff2d4"], ["Pearl", "#f6efe4"]] },
+  { id: "royal-blue-21", type: "bouquet", occasion: "luxury", price: 9200, roses: 21, box: "Plavo-srebrni omot", palette: "Plava, srebrna", visual: "blue", colors: [["Plava", "#1c4f8c"], ["Srebro", "#d9d9d9"], ["Bela", "#fff2d4"]] },
+  { id: "ivory-memory-8", type: "memorial", occasion: "memorial", price: 3600, roses: 8, box: "Mirno ivory pakovanje", palette: "Ivory, bela", visual: "ivory", colors: [["Ivory", "#fff2d4"], ["Bela", "#ffffff"], ["Sage", "#84947f"]] },
+  { id: "sweet-mini-box", type: "sweet", occasion: "birthday", price: 5200, roses: 5, box: "Bela kutija", palette: "Ivory, zlatna", visual: "sweet", colors: [["Ivory", "#fff2d4"], ["Gold", "#c69a45"], ["Cream", "#f7e7c6"]] },
+  { id: "ferrero-heart", type: "sweet", occasion: "romance", price: 6900, roses: 7, box: "Srce kutija", palette: "Crvena, zlato", visual: "heart", colors: [["Crvena", "#941d35"], ["Gold", "#c69a45"], ["Chocolate", "#573326"]] },
+  { id: "choco-bloom", type: "sweet", occasion: "thankyou", price: 7600, roses: 9, box: "Kvadratna kutija", palette: "Braon, ivory", visual: "choco", colors: [["Mocha", "#7b4a38"], ["Ivory", "#fff2d4"], ["Gold", "#c69a45"]] },
+  { id: "luxury-sweet-garden", type: "sweet", occasion: "luxury", price: 11500, roses: 15, box: "Velika premium kutija", palette: "Crvena, crna, zlatna", visual: "garden", colors: [["Crvena", "#941d35"], ["Crna", "#050505"], ["Gold", "#c69a45"]] },
+  { id: "teddy-rose-box", type: "toy", occasion: "birthday", price: 7600, roses: 7, box: "Poklon kutija", palette: "Roze, bela", visual: "teddy", colors: [["Roze", "#e6a0ad"], ["Bela", "#ffffff"], ["Gold", "#c69a45"]] },
+  { id: "golden-proposal", type: "premium", occasion: "romance", price: 14900, roses: 25, box: "Premium buket", palette: "Crvena, zlatna", visual: "proposal", colors: [["Crvena", "#941d35"], ["Gold", "#c69a45"], ["Crna", "#050505"]] },
+  { id: "pastel-dream", type: "bouquet", occasion: "birthday", price: 5900, roses: 13, box: "Pastel papir", palette: "Lavanda, roze, ivory", visual: "pastel", colors: [["Lavanda", "#b9a4d8"], ["Roze", "#e6a0ad"], ["Ivory", "#fff2d4"]] },
+  { id: "candy-pop-box", type: "sweet", occasion: "birthday", price: 7900, roses: 9, box: "Šarena kutija", palette: "Mešane boje", visual: "candy", colors: [["Pink", "#e95588"], ["Yellow", "#f4cc4f"], ["Blue", "#67a4d9"]] },
+  { id: "eternior-signature", type: "premium", occasion: "luxury", price: 16900, roses: 19, box: "Buket + kutija", palette: "Po dogovoru", visual: "signature", colors: [["Custom", "#9f334d"], ["Gold", "#c69a45"], ["Black", "#050505"]] },
 ];
 
 function t(key) {
@@ -571,7 +662,8 @@ function formatMoney(rsd) {
 
 function hydrateProduct(product, index) {
   const [name, category, description] = productText[state.lang][index];
-  return { ...product, name, category, description };
+  const [srName, srCategory, srDescription] = productText.sr[index];
+  return { ...product, name, category, description, orderNameSr: srName, orderCategorySr: srCategory, orderDescriptionSr: srDescription };
 }
 
 function productMatchesFilters(product) {
@@ -691,6 +783,21 @@ function renderTranslations() {
     button.classList.toggle("is-active", button.dataset.currency === state.currency);
   });
   renderSelectOptions();
+  renderColorPalette();
+}
+
+function renderColorPalette() {
+  const target = document.querySelector("[data-color-palette]");
+  if (!target) return;
+  const selected = getColorSr(document.querySelector('select[name="roseColor"]')?.value || "");
+  target.innerHTML = rosePalette
+    .map((item) => `<button class="${item.sr === selected ? "is-active" : ""}" type="button" data-palette-color="${item.sr}" style="--swatch:${item.color}"><span></span>${item[state.lang] || item.sr}</button>`)
+    .join("");
+}
+
+function getColorSr(value) {
+  const found = rosePalette.find((item) => [item.sr, item.en, item.zh].includes(value));
+  return found ? found.sr : value;
 }
 
 function fillSelect(name, values) {
@@ -702,7 +809,7 @@ function fillSelect(name, values) {
 function renderSelectOptions() {
   const options = selectOptions[state.lang] || selectOptions.sr;
   fillSelect("giftType", options.giftType);
-  fillSelect("roseColor", options.roseColor);
+  fillSelect("roseColor", rosePalette.map((item) => item[state.lang] || item.sr));
   fillSelect("sweets", options.sweets);
   fillSelect("occasion", options.occasion);
   fillSelect("style", options.style);
@@ -802,7 +909,11 @@ function renderCart() {
             <option>${t("cart.decide")}</option>
           </select>
         </label>
+        <label>${t("cart.phone")}<input name="phone" type="tel" placeholder="+381 6x xxx xxxx"></label>
+        <label>${t("cart.cityPostal")}<input name="cityPostal" type="text" placeholder="Bor 19210"></label>
         <label>${t("cart.address")}<textarea name="address" rows="3" placeholder="${t("cart.address")}"></textarea></label>
+        <p class="builder-note">${t("cart.pickupInfo")}</p>
+        <p class="coupon-status" data-checkout-error></p>
       </form>
       <div class="cart-total"><span>${t("cart.total")}</span><strong>${formatMoney(total)}</strong></div>
       <button class="button button-primary" type="button" data-whatsapp-checkout>${t("cart.checkout")}</button>
@@ -815,8 +926,22 @@ function renderAll() {
   renderRate();
   renderProducts(document.querySelector("[data-product-grid]"));
   renderProducts(document.querySelector("[data-featured-products]"), 3);
+  renderGallery();
   renderCart();
   updateCustomPreview(document.querySelector("[data-custom-form]"));
+}
+
+function renderGallery() {
+  const track = document.querySelector("[data-gallery-track]");
+  if (!track) return;
+  const items = products.slice(0, 8).map(hydrateProduct);
+  track.innerHTML = [...items, ...items]
+    .map((product) => `
+      <article class="gallery-item visual-${product.visual}">
+        <span>${product.name}</span>
+        <strong>${formatMoney(product.price)}</strong>
+      </article>`)
+    .join("");
 }
 
 function openCart() {
@@ -868,6 +993,13 @@ function getReadyAddons(button, product) {
     id: hasAddon ? `${product.id}-${Date.now()}` : product.id,
     price: product.price + addonPrice,
     details: details.join("; "),
+    orderDetailsSr: [
+      `${product.roses} satenskih ruža`,
+      `boje: ${product.palette}`,
+      `pakovanje: ${product.box}`,
+      message ? `ručno pisana poruka (${srOption(script, "script")}): ${message}` : "bez personalizovane poruke",
+      hasToy ? `dodatak: ${srOption(toy, "toy")}` : "bez igračke",
+    ].join("; "),
   };
 }
 
@@ -889,16 +1021,79 @@ function getCustomPrice(form) {
   if (memorial && roseCount % 2 !== 0) roseCount += 1;
   if (!memorial && roseCount % 2 === 0) roseCount += 1;
 
-  const sweetsTotal =
-    (Number(data.get("rafaello")) || 0) * 45 +
-    (Number(data.get("ferrero")) || 0) * 80 +
-    (Number(data.get("miniChocolate")) || 0) * 70 +
-    (Number(data.get("bigChocolate")) || 0) * 250;
+  const sweetsTotal = memorial
+    ? 0
+    : (Number(data.get("rafaello")) || 0) * sweetPrices.rafaello +
+      (Number(data.get("ferrero")) || 0) * sweetPrices.ferrero +
+      (Number(data.get("miniChocolate")) || 0) * sweetPrices.miniChocolate +
+      (Number(data.get("bigChocolate")) || 0) * sweetPrices.bigChocolate;
   const toy = data.get("toy") || "Bez igračke";
-  const toyTotal = /^Bez|^No |^不要/.test(toy) ? 0 : STORE.toyPrice;
-  const calculated = roseCount * STORE.rosePrice + sweetsTotal + toyTotal + 500;
+  const toyTotal = memorial || /^Bez|^No |^不要/.test(toy) ? 0 : STORE.toyPrice;
+  const decorationTotal = memorial ? 0 : getDecorationTotal(data);
+  const boxCost = getPackagingCost(data.get("giftType"), roseCount, sweetsTotal, toyTotal);
+  const directCost = roseCount * STORE.roseCost + sweetsTotal * 0.72 + toyTotal * 0.47 + decorationTotal * 0.45 + boxCost;
+  const labor = STORE.laborBase + roseCount * STORE.laborPerRose + (sweetsTotal ? 450 : 0) + (toyTotal ? 180 : 0) + (decorationTotal ? 350 : 0);
+  const retailBeforeDiscount = Math.ceil((directCost + labor) / (1 - STORE.targetMargin) / 100) * 100;
   const customerBudget = Number(data.get("budget")) || 0;
-  return Math.max(STORE.minGiftBudget, calculated, customerBudget);
+  const coupon = getCouponDiscount(data.get("coupon"));
+  const price = Math.max(STORE.minGiftBudget, retailBeforeDiscount, customerBudget);
+  return Math.max(STORE.minGiftBudget, Math.round(price * (1 - coupon.percent / 100) / 100) * 100);
+}
+
+function getDecorationTotal(data) {
+  const glitter = data.get("glitter");
+  const jewelry = data.get("jewelry");
+  const ribbonText = String(data.get("ribbonText") || "").trim();
+  const multicolor = data.get("multicolorPetals") === "yes";
+  const photoCount = Number(data.get("photoCount")) || 0;
+  let total = 0;
+  if (glitter === "accent") total += ADDON_PRICES.glitterAccent;
+  if (glitter === "full") total += ADDON_PRICES.glitterFull;
+  if (jewelry === "zircon") total += ADDON_PRICES.jewelryZircon;
+  if (jewelry === "butterfly") total += ADDON_PRICES.jewelryButterfly;
+  if (jewelry === "gold-crown" || jewelry === "silver-crown") total += ADDON_PRICES.jewelryCrown;
+  if (ribbonText) total += ADDON_PRICES.ribbonText;
+  if (multicolor) total += ADDON_PRICES.multicolorPetals;
+  if (photoCount) total += photoCount * ADDON_PRICES.photo;
+  return total;
+}
+
+function getPackagingCost(giftType, roseCount, sweetsTotal, toyTotal) {
+  const needsBox = /kutija|box|礼盒/i.test(String(giftType)) || sweetsTotal || toyTotal;
+  if (!needsBox) return STORE.bouquetWrapCost;
+  if (roseCount >= 19 || sweetsTotal > 1600) return STORE.boxLargeCost;
+  if (roseCount >= 11 || sweetsTotal > 700 || toyTotal) return STORE.boxMediumCost;
+  return STORE.boxSmallCost;
+}
+
+function getCouponDiscount(code) {
+  const normalized = String(code || "").trim().toUpperCase();
+  if (!normalized || !COUPONS[normalized]) return { code: normalized, percent: 0, label: "" };
+  return { code: normalized, ...COUPONS[normalized] };
+}
+
+function srOption(value, key) {
+  const srValues = selectOptions.sr[key] || [];
+  for (const lang of Object.keys(selectOptions)) {
+    const values = selectOptions[lang][key] || [];
+    const index = values.indexOf(value);
+    if (index >= 0) return srValues[index] || value;
+  }
+  return value || "";
+}
+
+function describeGlitterSr(value) {
+  return { none: "bez glittera", accent: "glitter detalji preko ruža", full: "full glitter rose" }[value] || "bez glittera";
+}
+
+function describeJewelrySr(value) {
+  return {
+    none: "bez nakita",
+    zircon: "cirkoni",
+    butterfly: "leptirići",
+    "gold-crown": "zlatna krunica",
+    "silver-crown": "srebrna krunica",
+  }[value] || "bez nakita";
 }
 
 function updateCustomPreview(form) {
@@ -928,6 +1123,11 @@ function updateCustomPreview(form) {
   const total = getCustomPrice(form);
   const totalNode = document.querySelector("[data-custom-total]");
   if (totalNode) totalNode.textContent = formatMoney(total);
+  const coupon = getCouponDiscount(data.get("coupon"));
+  const couponNode = document.querySelector("[data-coupon-status]");
+  if (couponNode) {
+    couponNode.textContent = coupon.percent ? `${t("custom.discount")}: ${coupon.label} (${coupon.code})` : "";
+  }
 
   const notes = form.querySelector('textarea[name="notes"]');
   const counter = document.querySelector("[data-message-counter]");
@@ -941,12 +1141,14 @@ function buildWhatsAppMessage() {
   const lines = [
     `Zdravo ${STORE.name}, želim da poručim:`,
     "",
-    ...state.cart.map((item, index) => `${index + 1}. ${item.name} x ${item.quantity} - ${formatMoney(item.price * item.quantity)}${item.details ? ` | ${item.details}` : ""}`),
+    ...state.cart.map((item, index) => `${index + 1}. ${item.orderNameSr || item.name} x ${item.quantity} - ${formatMoney(item.price * item.quantity)}${item.orderDetailsSr || item.details ? ` | ${item.orderDetailsSr || item.details}` : ""}`),
     "",
     `Ukupno približno: ${formatMoney(total)}`,
     `Valuta na sajtu: ${state.currency}`,
     `Ime: ${formData.get("customerName") || "Nije uneto"}`,
-    `Dostava/preuzimanje: ${formData.get("delivery") || "Dogovor"}`,
+    `Telefon: ${formData.get("phone") || "Nije uneto"}`,
+    `Dostava/preuzimanje: ${normalizeDeliverySr(formData.get("delivery"))}`,
+    `Grad i poštanski broj: ${formData.get("cityPostal") || (normalizeDeliverySr(formData.get("delivery")) === "Lično preuzimanje" ? "Bor 19210" : "Nije uneto")}`,
     `Okvirna dostava: oko ${STORE.estimatedDelivery} RSD, zavisi od kurirske službe`,
     `Adresa ili napomena: ${formData.get("address") || "Nije uneto"}`,
     "",
@@ -955,11 +1157,36 @@ function buildWhatsAppMessage() {
   return lines.join("\n");
 }
 
+function normalizeDeliverySr(value) {
+  const text = String(value || "");
+  if ([copy.sr["cart.pickup"], copy.en["cart.pickup"], copy.zh["cart.pickup"]].includes(text)) return "Lično preuzimanje";
+  if ([copy.sr["cart.decide"], copy.en["cart.decide"], copy.zh["cart.decide"]].includes(text)) return "Dogovor preko WhatsApp-a";
+  return "Dostava";
+}
+
+function validateCheckout() {
+  const form = document.querySelector("[data-checkout-form]");
+  if (!form) return true;
+  const data = new FormData(form);
+  const delivery = normalizeDeliverySr(data.get("delivery"));
+  const required = ["customerName"];
+  if (delivery === "Dostava") required.push("phone", "cityPostal", "address");
+  const missing = required.filter((name) => !String(data.get(name) || "").trim());
+  const error = form.querySelector("[data-checkout-error]");
+  if (missing.length) {
+    if (error) error.textContent = t("cart.deliveryRequired");
+    return false;
+  }
+  if (error) error.textContent = "";
+  return true;
+}
+
 function checkout() {
   if (!state.cart.length) {
     openCart();
     return;
   }
+  if (!validateCheckout()) return;
   window.open(`https://wa.me/${STORE.whatsappNumber}?text=${encodeURIComponent(buildWhatsAppMessage())}`, "_blank", "noopener,noreferrer");
 }
 
@@ -968,15 +1195,24 @@ function handleCustom(event) {
   const data = new FormData(event.currentTarget);
   const price = getCustomPrice(event.currentTarget);
   const memorial = data.get("memorial") === "on";
+  const coupon = getCouponDiscount(data.get("coupon"));
+  const roseLine = `${data.get("roseCount")} ruža x ${STORE.rosePrice} RSD`;
+  const colorLine = `boja/paleta: ${getColorSr(data.get("roseColor"))} (nijansa može blago odstupati uživo)`;
+  const photoCount = Number(data.get("photoCount")) || 0;
+  const decorationLine = memorial
+    ? ""
+    : `glitter: ${describeGlitterSr(data.get("glitter"))}; nakit: ${describeJewelrySr(data.get("jewelry"))}; višebojne latice: ${data.get("multicolorPetals") === "yes" ? "da" : "ne"}; traka sa natpisom: ${data.get("ribbonText") || "ne"}; slike u aranžmanu: ${photoCount ? `${photoCount} (kupac šalje slike naknadno, uklapanje po dogovoru)` : "ne"}`;
   const customDetails = memorial
-    ? `za preminulu osobu; ${data.get("roseCount")} ruža x ${STORE.rosePrice} RSD; boja: ${data.get("roseColor")}; bez slatkiša, igračke i poruke`
-    : `poklon aranžman, neparan broj; ${data.get("roseCount")} ruža x ${STORE.rosePrice} RSD; boja: ${data.get("roseColor")}; Raffaello: ${data.get("rafaello") || 0}; Ferrero: ${data.get("ferrero") || 0}; male čokoladice: ${data.get("miniChocolate") || 0}; velike čokolade: ${data.get("bigChocolate") || 0}; igračka: ${data.get("toy") || "bez igračke"} (${data.get("toyColor") || "-"}); poruka (${data.get("script") || "Latinica"}): ${data.get("notes") || "bez poruke"}`;
+    ? `za preminulu osobu; ${roseLine}; ${colorLine}; bez slatkiša, igračke i poruke; pakovanje dostojanstveno i jednostavno`
+    : `poklon aranžman, neparan broj; ${roseLine}; ${colorLine}; Raffaello: ${data.get("rafaello") || 0} x ${sweetPrices.rafaello} RSD; Ferrero: ${data.get("ferrero") || 0} x ${sweetPrices.ferrero} RSD; male čokoladice: ${data.get("miniChocolate") || 0} x ${sweetPrices.miniChocolate} RSD; velike čokolade: ${data.get("bigChocolate") || 0} x ${sweetPrices.bigChocolate} RSD; igračka: ${srOption(data.get("toy"), "toy")} (${srOption(data.get("toyColor"), "toyColors")}) ${/^Bez|^No |^不要/.test(data.get("toy") || "") ? "" : `+ ${STORE.toyPrice} RSD`}; ${decorationLine}; poruka (${srOption(data.get("script"), "script")}): ${data.get("notes") || "bez poruke"}; kupon: ${coupon.percent ? `${coupon.code} - ${coupon.label}` : "bez kupona"}`;
   addToCart({
     id: `custom-${Date.now()}`,
     name: data.get("giftType"),
+    orderNameSr: srOption(data.get("giftType"), "giftType"),
     category: "Personalizovana porudžbina",
     price,
     details: customDetails,
+    orderDetailsSr: customDetails,
   });
   event.currentTarget.reset();
   updateCustomPreview(event.currentTarget);
@@ -989,6 +1225,7 @@ function handleConcierge(event) {
   const occasion = data.get("occasion");
   const style = data.get("style");
   const suggestion = buildConciergeSuggestion(budget, occasion, style);
+  state.latestSuggestion = suggestion;
   const target = document.querySelector("[data-suggestion]");
   target.classList.add("is-visible");
   target.innerHTML = `
@@ -997,7 +1234,7 @@ function handleConcierge(event) {
     <ul>
       ${suggestion.details.map((detail) => `<li>${detail}</li>`).join("")}
     </ul>
-    <button class="button button-primary" type="button" data-add-suggestion="${suggestion.price}" data-suggestion-text="${suggestion.name}" data-suggestion-details="${suggestion.details.join("; ")}">${t("suggestionAdd")}</button>`;
+    <button class="button button-primary" type="button" data-add-suggestion="latest">${t("suggestionAdd")}</button>`;
 }
 
 function buildConciergeSuggestion(budget, occasion, style) {
@@ -1099,6 +1336,7 @@ function buildConciergeSuggestion(budget, occasion, style) {
 
   return {
     name,
+    nameSr: luxury ? allSuggestionLabels.sr.names[0] : playful ? allSuggestionLabels.sr.names[1] : minimal ? allSuggestionLabels.sr.names[2] : allSuggestionLabels.sr.names[3],
     price: budget,
     details: [
       state.lang === "zh" ? `${roses}${labels.roses}` : `${roses} ${labels.roses}`,
@@ -1107,6 +1345,14 @@ function buildConciergeSuggestion(budget, occasion, style) {
       `${labels.sweets}: ${sweets}`,
       `${labels.toyLabel}: ${toy}`,
       `${labels.message}: ${message}`,
+    ],
+    detailsSr: [
+      `${roses} ${allSuggestionLabels.sr.roses}`,
+      `${allSuggestionLabels.sr.colors}: ${luxury ? allSuggestionLabels.sr.palettes.luxury : romantic ? allSuggestionLabels.sr.palettes.romantic : playful ? allSuggestionLabels.sr.palettes.playful : minimal ? allSuggestionLabels.sr.palettes.minimal : allSuggestionLabels.sr.palettes.elegant}`,
+      `${allSuggestionLabels.sr.packaging}: ${budget >= 6500 ? allSuggestionLabels.sr.premiumBox : allSuggestionLabels.sr.simpleBox}`,
+      `${allSuggestionLabels.sr.sweets}: ${budget >= 9000 ? allSuggestionLabels.sr.sweetsHigh : budget >= 5500 ? allSuggestionLabels.sr.sweetsMid : budget >= 3500 ? allSuggestionLabels.sr.sweetsLow : allSuggestionLabels.sr.sweetsNone}`,
+      `${allSuggestionLabels.sr.toyLabel}: ${budget >= 7000 && !minimal ? allSuggestionLabels.sr.toy : allSuggestionLabels.sr.noToy}`,
+      `${allSuggestionLabels.sr.message}: ${romantic ? allSuggestionLabels.sr.messageRomantic : allSuggestionLabels.sr.messageOptional}`,
     ],
   };
 }
@@ -1133,6 +1379,7 @@ document.addEventListener("click", (event) => {
   const filterButton = event.target.closest("[data-filter]");
   const suggestionButton = event.target.closest("[data-add-suggestion]");
   const shareButton = event.target.closest("[data-share-product]");
+  const paletteButton = event.target.closest("[data-palette-color]");
 
   if (navToggle) {
     document.querySelector("[data-nav]").classList.toggle("is-open");
@@ -1171,13 +1418,31 @@ document.addEventListener("click", (event) => {
     const index = products.findIndex((item) => item.id === shareButton.dataset.shareProduct);
     shareProduct(hydrateProduct(products[index], index));
   }
+  if (paletteButton) {
+    const select = document.querySelector('select[name="roseColor"]');
+    if (select) {
+      const srValue = paletteButton.dataset.paletteColor;
+      const paletteItem = rosePalette.find((item) => item.sr === srValue);
+      const value = paletteItem ? paletteItem[state.lang] || paletteItem.sr : srValue;
+      if (![...select.options].some((option) => option.value === value)) {
+        select.add(new Option(value, value));
+      }
+      select.value = value;
+      renderColorPalette();
+      updateCustomPreview(document.querySelector("[data-custom-form]"));
+    }
+  }
   if (suggestionButton) {
+    const suggestion = state.latestSuggestion;
+    if (!suggestion) return;
     addToCart({
       id: `suggestion-${Date.now()}`,
-      name: suggestionButton.dataset.suggestionText,
-      category: "Eternior predlog",
-      price: Number(suggestionButton.dataset.addSuggestion),
-      details: "Predlog napravljen prema budžetu, prilici i stilu kupca.",
+      name: suggestion.name,
+      orderNameSr: suggestion.nameSr,
+      category: t("suggestionDetails"),
+      price: Number(suggestion.price),
+      details: suggestion.details.join("; "),
+      orderDetailsSr: suggestion.detailsSr.join("; "),
     });
   }
   if (event.target.closest("[data-open-cart]")) openCart();
@@ -1197,6 +1462,10 @@ document.addEventListener("input", (event) => {
   if (event.target.matches("[data-price-input]")) {
     updateCustomPreview(event.target.closest("[data-custom-form]"));
   }
+  if (event.target.matches('select[name="roseColor"]')) {
+    renderColorPalette();
+    updateCustomPreview(event.target.closest("[data-custom-form]"));
+  }
 });
 
 document.addEventListener("change", (event) => {
@@ -1204,6 +1473,10 @@ document.addEventListener("change", (event) => {
     renderProducts(document.querySelector("[data-product-grid]"));
   }
   if (event.target.matches("[data-price-input]")) {
+    updateCustomPreview(event.target.closest("[data-custom-form]"));
+  }
+  if (event.target.matches('select[name="roseColor"]')) {
+    renderColorPalette();
     updateCustomPreview(event.target.closest("[data-custom-form]"));
   }
 });
