@@ -64,7 +64,7 @@
           <p class="builder-note" data-i18n="custom.pricingNote">Cena uključuje materijal, ručni rad, pakovanje i rezervu za završnu obradu.</p>
           <label>
             <span data-i18n="custom.giftType">Tip poklona</span>
-            <select name="giftType">
+            <select name="giftType" data-price-input>
               <option value="Personalizovani satenski buket">Personalizovani satenski buket</option>
               <option value="Personalizovana slatka kutija">Personalizovana slatka kutija</option>
               <option value="Buket + slatka kutija">Buket + slatka kutija</option>
@@ -86,7 +86,7 @@
           </label>
           <label>
             <span data-i18n="custom.color">Glavna boja</span>
-            <select name="roseColor">
+            <select name="roseColor" data-price-input>
               <option>Šampanj</option>
               <option>Slonova kost</option>
               <option>Nežno roze</option>
@@ -146,7 +146,7 @@
           </div>
           <label data-non-memorial>
             <span data-i18n="custom.sweets">Slatkiši</span>
-            <select name="sweets">
+            <select name="sweets" data-price-input>
               <option>Bez slatkiša</option>
               <option>Čokolada</option>
               <option>Bombone</option>
@@ -179,7 +179,7 @@
               </select>
             </label>
             <label><span data-i18n="custom.toyColor">Boja igračke</span>
-              <select name="toyColor">
+              <select name="toyColor" data-price-input>
                 <option>Bela</option>
                 <option>Braon</option>
                 <option>Roze</option>
@@ -194,7 +194,7 @@
           </label>
           <label data-non-memorial>
             <span data-i18n="custom.script">Pismo za ručno pisanu poruku</span>
-            <select name="script">
+            <select name="script" data-price-input>
               <option>Latinica</option>
               <option>Ćirilica</option>
             </select>
@@ -216,40 +216,50 @@
           <button class="button button-primary" type="submit" data-i18n="custom.add">Dodaj personalizovan poklon</button>
         </form>
 
-        <section class="builder-card concierge" id="concierge">
-          <p class="eyebrow" data-i18n="concierge.eyebrow">Eternior predlog</p>
-          <h2 data-i18n="concierge.title">Nisi siguran/na šta da izabereš?</h2>
-          <p data-i18n="concierge.text">
-            Unesi budžet, priliku i stil. Dobićeš predlog koji možeš odmah dodati u korpu.
-          </p>
-          <form data-concierge-form>
-            <label>
-              <span data-i18n="concierge.budget">Budžet u RSD</span>
-              <input name="budget" type="number" min="500" step="500" value="6000" />
-            </label>
-            <label>
-              <span data-i18n="concierge.occasion">Prilika</span>
-              <select name="occasion">
-                <option>Rođendan</option>
-                <option>Godišnjica</option>
-                <option>Izvinjenje</option>
-                <option>Romantičan poklon</option>
-                <option>Zahvalnost</option>
-              </select>
-            </label>
-            <label>
-              <span data-i18n="concierge.style">Stil</span>
-              <select name="style">
-                <option>Elegantno i nežno</option>
-                <option>Luksuzno i dramatično</option>
-                <option>Minimalno i moderno</option>
-                <option>Veselo i šareno</option>
-              </select>
-            </label>
-            <button class="button button-outline dark" type="submit" data-i18n="concierge.generate">Predloži poklon</button>
-          </form>
-          <div class="suggestion" data-suggestion aria-live="polite"></div>
-        </section>
+        <div class="custom-side">
+          <aside class="builder-card custom-preview-card">
+            <p class="eyebrow" data-i18n="custom.previewEyebrow">Pregled uživo</p>
+            <h2 data-i18n="custom.previewTitle">Kako bi poklon mogao da izgleda</h2>
+            <div class="custom-preview-visual" data-custom-preview role="img" aria-label="Pregled personalizovanog poklona"></div>
+            <div class="custom-preview-summary" data-custom-preview-summary aria-live="polite"></div>
+            <small data-i18n="custom.previewNote">Pregled je okviran. Ručni rad, nijanse i raspored se potvrđuju pre izrade.</small>
+          </aside>
+
+          <section class="builder-card concierge" id="concierge">
+            <p class="eyebrow" data-i18n="concierge.eyebrow">Eternior predlog</p>
+            <h2 data-i18n="concierge.title">Nisi siguran/na šta da izabereš?</h2>
+            <p data-i18n="concierge.text">
+              Unesi budžet, priliku i stil. Dobićeš predlog koji možeš odmah dodati u korpu.
+            </p>
+            <form data-concierge-form>
+              <label>
+                <span data-i18n="concierge.budget">Budžet u RSD</span>
+                <input name="budget" type="number" min="500" step="500" value="6000" />
+              </label>
+              <label>
+                <span data-i18n="concierge.occasion">Prilika</span>
+                <select name="occasion">
+                  <option>Rođendan</option>
+                  <option>Godišnjica</option>
+                  <option>Izvinjenje</option>
+                  <option>Romantičan poklon</option>
+                  <option>Zahvalnost</option>
+                </select>
+              </label>
+              <label>
+                <span data-i18n="concierge.style">Stil</span>
+                <select name="style">
+                  <option>Elegantno i nežno</option>
+                  <option>Luksuzno i dramatično</option>
+                  <option>Minimalno i moderno</option>
+                  <option>Veselo i šareno</option>
+                </select>
+              </label>
+              <button class="button button-outline dark" type="submit" data-i18n="concierge.generate">Predloži poklon</button>
+            </form>
+            <div class="suggestion" data-suggestion aria-live="polite"></div>
+          </section>
+        </div>
       </section>
     </main>
 

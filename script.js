@@ -68,6 +68,7 @@ const state = {
   wheelPrize: readStoredJson("eterniorWheelPrize", null),
   orderId: localStorage.getItem("eterniorOrderId") || "",
   pendingCheckout: null,
+  assistant: { step: "start", answers: {} },
 };
 
 if (!state.cart.length && state.orderId) {
@@ -980,7 +981,48 @@ const products = [
 ];
 
 function t(key) {
-  return copy[state.lang][key] || copy.sr[key] || key;
+  const runtimeCopy = {
+    sr: {
+      "custom.previewEyebrow": "Pregled uživo",
+      "custom.previewTitle": "Kako bi poklon mogao da izgleda",
+      "custom.previewNote": "Pregled je okviran. Ručni rad, nijanse i raspored se potvrđuju pre izrade.",
+      "assistant.open": "Asistent",
+      "assistant.title": "Eternior asistent",
+      "assistant.kicker": "Pomoć pri izboru",
+      "assistant.close": "Zatvori asistenta",
+      "assistant.restart": "Kreni ponovo",
+      "assistant.add": "Dodaj predlog u korpu",
+      "assistant.custom": "Napravi detaljnije",
+      "assistant.shop": "Pogledaj prodavnicu",
+    },
+    en: {
+      "custom.previewEyebrow": "Live preview",
+      "custom.previewTitle": "How your gift could look",
+      "custom.previewNote": "Preview is approximate. Handmade details, shades and placement are confirmed before making.",
+      "assistant.open": "Assistant",
+      "assistant.title": "Eternior assistant",
+      "assistant.kicker": "Gift guidance",
+      "assistant.close": "Close assistant",
+      "assistant.restart": "Start again",
+      "assistant.add": "Add suggestion to cart",
+      "assistant.custom": "Customize more",
+      "assistant.shop": "View shop",
+    },
+    zh: {
+      "custom.previewEyebrow": "实时预览",
+      "custom.previewTitle": "礼物大概呈现效果",
+      "custom.previewNote": "预览仅供参考。手工细节、色差和摆放会在制作前确认。",
+      "assistant.open": "助手",
+      "assistant.title": "Eternior 助手",
+      "assistant.kicker": "礼物推荐",
+      "assistant.close": "关闭助手",
+      "assistant.restart": "重新开始",
+      "assistant.add": "加入推荐",
+      "assistant.custom": "继续定制",
+      "assistant.shop": "查看商店",
+    },
+  };
+  return copy[state.lang][key] || runtimeCopy[state.lang]?.[key] || copy.sr[key] || runtimeCopy.sr[key] || key;
 }
 
 function saveState() {
@@ -1027,6 +1069,15 @@ function hydrateProduct(product, index) {
   const [name, category, description] = productText[state.lang][index];
   const [srName, srCategory, srDescription] = productText.sr[index];
   return { ...product, name, category, description, orderNameSr: srName, orderCategorySr: srCategory, orderDescriptionSr: srDescription };
+}
+
+function escapeHtml(value) {
+  return String(value || "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
 }
 
 function productMatchesFilters(product) {
@@ -1083,6 +1134,65 @@ function getProductBadges(product) {
   return [];
 }
 
+function getVisualVars(colors = []) {
+  const hexes = colors.map(([, color]) => color).filter(Boolean);
+  return [
+    `--rose-a:${hexes[0] || "#e5c27c"}`,
+    `--rose-b:${hexes[1] || hexes[0] || "#fff2d4"}`,
+    `--rose-c:${hexes[2] || "#c69a45"}`,
+  ].join(";");
+}
+
+function roseMarkup(count = 7, prefix = "pv-rose") {
+  return Array.from({ length: count }, (_, index) => `<span class="${prefix} ${prefix}-${index + 1}"></span>`).join("");
+}
+
+function sweetMarkup(product) {
+  const base = product.visual === "candy" ? "candy" : product.visual === "choco" ? "choco" : "ferrero";
+  return `
+    <span class="pv-sweet pv-sweet-1 ${base}"></span>
+    <span class="pv-sweet pv-sweet-2 raffaello"></span>
+    <span class="pv-sweet pv-sweet-3 ${product.visual === "heart" ? "heart-choc" : "bar"}"></span>
+    <span class="pv-sweet pv-sweet-4 ferrero"></span>`;
+}
+
+function ribbonPreviewText() {
+  if (state.lang === "en") return "Your text";
+  if (state.lang === "zh") return "你的文字";
+  return "Tvoj tekst";
+}
+
+function productVisualHtml(product) {
+  const badges = getProductBadges(product).map((badge) => `<span>${escapeHtml(badge)}</span>`).join("");
+  const isSweet = ["sweet", "toy", "premium"].includes(product.type);
+  const isBox = isSweet || ["heart", "signature", "garden", "candy", "choco"].includes(product.visual);
+  const isToy = product.type === "toy";
+  const isMemorial = product.type === "memorial";
+  const roseCount = product.roses >= 19 ? 9 : product.roses >= 11 ? 7 : 5;
+  const classNames = [
+    "product-image",
+    "product-visual",
+    `visual-${product.visual}`,
+    `visual-type-${product.type}`,
+    isBox ? "has-box" : "has-wrap",
+    isMemorial ? "is-memorial" : "",
+  ].filter(Boolean).join(" ");
+
+  return `
+    <div class="${classNames}" style="${getVisualVars(product.colors)}" role="img" aria-label="${escapeHtml(product.name)}">
+      <div class="product-badges">${badges}</div>
+      <div class="pv-surface">
+        ${isBox ? '<span class="pv-box-back"></span><span class="pv-box-base"></span>' : '<span class="pv-bouquet-wrap"></span>'}
+        <span class="pv-stems"></span>
+        <span class="pv-rose-cluster">${roseMarkup(roseCount)}</span>
+        ${isSweet ? `<span class="pv-sweets">${sweetMarkup(product)}</span>` : ""}
+        ${isToy ? '<span class="pv-toy" aria-hidden="true"><i></i></span>' : '<span class="pv-toy pv-addon-toy" aria-hidden="true" hidden><i></i></span>'}
+        ${product.type === "premium" ? `<span class="pv-ribbon">${ribbonPreviewText()}</span><span class="pv-jewel"></span>` : ""}
+        ${isMemorial ? '<span class="pv-memory-line"></span>' : ""}
+      </div>
+    </div>`;
+}
+
 function renderProducts(target, limit) {
   if (!target) return;
   const items = products
@@ -1094,13 +1204,7 @@ function renderProducts(target, limit) {
     .map(
       (product) => `
         <article class="product-card reveal" data-product-card="${product.id}">
-          <div class="product-image satin-visual visual-${product.visual}" role="img" aria-label="${product.name}">
-            <div class="product-badges">${getProductBadges(product).map((badge) => `<span>${badge}</span>`).join("")}</div>
-            <span class="satin-rose r1"></span>
-            <span class="satin-rose r2"></span>
-            <span class="satin-rose r3"></span>
-            <span class="satin-box"></span>
-          </div>
+          ${productVisualHtml(product)}
           <div class="product-body">
             <div class="product-meta">
               <div>
@@ -1375,6 +1479,7 @@ function renderAll() {
   updateCustomPreview(document.querySelector("[data-custom-form]"));
   renderWheelModal();
   applyPendingWheelCoupon();
+  renderGiftAssistant();
 }
 
 function renderWheelModal() {
@@ -1562,6 +1667,14 @@ function getReadyAddons(button, product) {
   };
 }
 
+function updateReadyToyPreview(select) {
+  const card = select?.closest("[data-product-card]");
+  if (!card) return;
+  const toy = card.querySelector(".pv-addon-toy");
+  if (!toy) return;
+  toy.hidden = isNoOption(select.value);
+}
+
 function updateQuantity(id, amount) {
   const item = state.cart.find((cartItem) => cartItem.id === id);
   if (!item) return;
@@ -1730,6 +1843,143 @@ function describeJewelrySr(value) {
   }[value] || "bez nakita";
 }
 
+function getPaletteColor(value) {
+  const sr = getColorSr(value);
+  return rosePalette.find((color) => color.sr === sr || color.en === value || color.zh === value) || rosePalette[2] || rosePalette[0];
+}
+
+function isNoOption(value) {
+  return /^Bez|^No |^不|^ä¸/i.test(String(value || ""));
+}
+
+function getPreviewLabels() {
+  return ({
+    sr: {
+      roses: "ruža",
+      type: "Tip",
+      color: "Boja",
+      sweets: "slatkiši",
+      toy: "igračka",
+      glitter: "glitter",
+      jewelry: "dekor",
+      photos: "slike",
+      ribbon: "traka",
+      memorial: "memorijalni aranžman",
+      estimate: "Procena",
+    },
+    en: {
+      roses: "roses",
+      type: "Type",
+      color: "Color",
+      sweets: "sweets",
+      toy: "toy",
+      glitter: "glitter",
+      jewelry: "decor",
+      photos: "photos",
+      ribbon: "ribbon",
+      memorial: "memorial arrangement",
+      estimate: "Estimate",
+    },
+    zh: {
+      roses: "朵玫瑰",
+      type: "类型",
+      color: "颜色",
+      sweets: "甜品",
+      toy: "玩具",
+      glitter: "闪粉",
+      jewelry: "装饰",
+      photos: "照片",
+      ribbon: "丝带",
+      memorial: "纪念花束",
+      estimate: "预估",
+    },
+  })[state.lang] || ({
+    roses: "ruža",
+    type: "Tip",
+    color: "Boja",
+    sweets: "slatkiši",
+    toy: "igračka",
+    glitter: "glitter",
+    jewelry: "dekor",
+    photos: "slike",
+    ribbon: "traka",
+    memorial: "memorijalni aranžman",
+    estimate: "Procena",
+  });
+}
+
+function renderCustomLivePreview(form, total) {
+  const visual = document.querySelector("[data-custom-preview]");
+  const summary = document.querySelector("[data-custom-preview-summary]");
+  if (!form || !visual) return;
+
+  const data = new FormData(form);
+  const labels = getPreviewLabels();
+  const memorial = data.get("memorial") === "on";
+  const roseCount = normalizeRoseCount(form.querySelector('input[name="roseCount"]')?.value, memorial);
+  const colorItem = getPaletteColor(data.get("roseColor"));
+  const giftType = String(data.get("giftType") || "");
+  const rafaello = Number(data.get("rafaello")) || 0;
+  const ferrero = Number(data.get("ferrero")) || 0;
+  const miniChocolate = Number(data.get("miniChocolate")) || 0;
+  const bigChocolate = Number(data.get("bigChocolate")) || 0;
+  const sweetsTotalCount = memorial ? 0 : rafaello + ferrero + miniChocolate + bigChocolate;
+  const hasToy = !memorial && !isNoOption(data.get("toy"));
+  const hasBox = !memorial && (/kutija|box|礼盒|ç¤¼ç›’/i.test(giftType) || sweetsTotalCount || hasToy);
+  const glitter = !memorial ? data.get("glitter") : "none";
+  const jewelry = !memorial ? data.get("jewelry") : "none";
+  const ribbonText = !memorial ? String(data.get("ribbonText") || "").trim() : "";
+  const photoCount = !memorial ? Number(data.get("photoCount")) || 0 : 0;
+  const multi = !memorial && data.get("multicolorPetals") === "yes";
+  const rosePreviewCount = Math.min(11, Math.max(5, Math.round(roseCount / 3)));
+  const renderedSweets = [
+    ...Array.from({ length: Math.min(3, Math.ceil(rafaello / 3)) }, () => '<span class="preview-sweet raffaello"></span>'),
+    ...Array.from({ length: Math.min(3, Math.ceil(ferrero / 3)) }, () => '<span class="preview-sweet ferrero"></span>'),
+    ...Array.from({ length: Math.min(2, Math.ceil(miniChocolate / 4)) }, () => '<span class="preview-sweet mini-bar"></span>'),
+    ...Array.from({ length: Math.min(1, bigChocolate) }, () => '<span class="preview-sweet big-bar"></span>'),
+  ].join("");
+  const className = [
+    "live-arrangement",
+    hasBox ? "is-box" : "is-bouquet",
+    memorial ? "is-memorial" : "",
+    glitter === "accent" || glitter === "full" ? "has-glitter" : "",
+    glitter === "full" ? "has-full-glitter" : "",
+    jewelry !== "none" ? "has-jewelry" : "",
+    multi ? "has-multicolor" : "",
+  ].filter(Boolean).join(" ");
+
+  visual.innerHTML = `
+    <div class="${className}" style="--rose-a:${colorItem.color};--rose-b:${multi ? "#fff2d4" : colorItem.color};--rose-c:${multi ? "#e95588" : "#c69a45"}">
+      <span class="preview-shadow"></span>
+      ${hasBox ? '<span class="preview-box-lid"></span><span class="preview-box"></span>' : '<span class="preview-wrap"></span>'}
+      <span class="preview-stems"></span>
+      <span class="preview-roses">${roseMarkup(rosePreviewCount, "preview-rose")}</span>
+      ${sweetsTotalCount ? `<span class="preview-sweets">${renderedSweets}</span>` : ""}
+      ${hasToy ? '<span class="preview-toy"><i></i></span>' : ""}
+      ${photoCount ? Array.from({ length: Math.min(photoCount, 3) }, (_, index) => `<span class="preview-photo preview-photo-${index + 1}"></span>`).join("") : ""}
+      ${jewelry !== "none" ? '<span class="preview-jewels"></span>' : ""}
+      ${ribbonText ? `<span class="preview-ribbon">${escapeHtml(ribbonText.slice(0, 18))}</span>` : ""}
+    </div>`;
+
+  if (summary) {
+    const chips = [
+      `${roseCount} ${labels.roses}`,
+      `${labels.color}: ${colorItem[state.lang] || colorItem.sr}`,
+      memorial ? labels.memorial : "",
+      sweetsTotalCount ? `${sweetsTotalCount} ${labels.sweets}` : "",
+      hasToy ? labels.toy : "",
+      glitter !== "none" ? labels.glitter : "",
+      jewelry !== "none" ? labels.jewelry : "",
+      photoCount ? `${photoCount} ${labels.photos}` : "",
+      ribbonText ? labels.ribbon : "",
+    ].filter(Boolean);
+    summary.innerHTML = `
+      <p><strong>${labels.type}:</strong> ${escapeHtml(giftType || "-")}</p>
+      <div>${chips.map((chip) => `<span>${escapeHtml(chip)}</span>`).join("")}</div>
+      <p><strong>${labels.estimate}:</strong> ${formatMoney(total || getCustomPrice(form))}</p>`;
+  }
+}
+
 function updateCustomPreview(form) {
   if (!form) return;
   const data = new FormData(form);
@@ -1770,6 +2020,7 @@ function updateCustomPreview(form) {
   const notes = form.querySelector('textarea[name="notes"]');
   const counter = document.querySelector("[data-message-counter]");
   if (notes && counter) counter.textContent = `${notes.value.length} / 200 karaktera`;
+  renderCustomLivePreview(form, total);
 }
 
 function buildWhatsAppMessage() {
@@ -2195,6 +2446,181 @@ function buildConciergeSuggestion(budget, occasion, style) {
   };
 }
 
+function getAssistantCopy() {
+  const packs = {
+    sr: {
+      intro: "Zdravo, ja sam Eternior asistent. Odgovori na par brzih pitanja i predložiću poklon koji ima smisla za budžet, priliku i stil.",
+      budget: "Koji budžet planiraš?",
+      occasion: "Za koju priliku biraš poklon?",
+      style: "Kakav utisak želiš da ostavi poklon?",
+      extras: "Da li želiš dodatke uz ruže?",
+      result: "Moj predlog",
+      resultText: "Ovo je okviran predlog. Pre izrade se sve potvrđuje u poruci, uključujući dostupne nijanse, slatkiše i rok.",
+      added: "Predlog je dodat u korpu. Možeš odmah poslati upit ili još nešto izmeniti.",
+      budgets: [["3500", "Do 3.500 RSD"], ["6000", "Oko 6.000 RSD"], ["9000", "Oko 9.000 RSD"], ["14000", "Premium 14.000+ RSD"]],
+      occasions: [["Rođendan", "Rođendan"], ["Godišnjica", "Godišnjica"], ["Romantičan poklon", "Romantično"], ["Zahvalnost", "Zahvalnost"], ["Izvinjenje", "Izvinjenje"]],
+      styles: [["Elegantno i nežno", "Nežno"], ["Luksuzno i dramatično", "Luksuzno"], ["Minimalno i moderno", "Minimalno"], ["Veselo i šareno", "Šareno"]],
+      extrasOptions: [["sweets", "Sa slatkišima"], ["toy", "Sa igračkom"], ["clean", "Samo ruže"], ["surprise", "Iznenadi me"]],
+    },
+    en: {
+      intro: "Hi, I am the Eternior assistant. Answer a few quick questions and I will suggest a gift that fits your budget, occasion and style.",
+      budget: "What budget are you planning?",
+      occasion: "What is the occasion?",
+      style: "What feeling should the gift have?",
+      extras: "Would you like extras with the roses?",
+      result: "My suggestion",
+      resultText: "This is an estimate. Before making it, everything is confirmed in chat, including shades, sweets and timing.",
+      added: "The suggestion has been added to your cart. You can send the inquiry now or adjust more.",
+      budgets: [["3500", "Up to 3,500 RSD"], ["6000", "Around 6,000 RSD"], ["9000", "Around 9,000 RSD"], ["14000", "Premium 14,000+ RSD"]],
+      occasions: [["Birthday", "Birthday"], ["Anniversary", "Anniversary"], ["Romantic gift", "Romantic"], ["Thank you", "Thank you"], ["Apology", "Apology"]],
+      styles: [["Elegant and soft", "Soft"], ["Luxury and dramatic", "Luxury"], ["Minimal and modern", "Minimal"], ["Bright and colorful", "Colorful"]],
+      extrasOptions: [["sweets", "With sweets"], ["toy", "With toy"], ["clean", "Only roses"], ["surprise", "Surprise me"]],
+    },
+    zh: {
+      intro: "你好，我是 Eternior 助手。回答几个问题，我会根据预算、场合和风格推荐礼物。",
+      budget: "你的预算是多少？",
+      occasion: "是什么场合？",
+      style: "你想要什么风格？",
+      extras: "玫瑰以外还想加什么？",
+      result: "我的推荐",
+      resultText: "这是预估推荐。制作前会在聊天中确认颜色、甜品和时间。",
+      added: "推荐已加入购物车。你可以现在发送咨询，也可以继续调整。",
+      budgets: [["3500", "3,500 RSD 以内"], ["6000", "约 6,000 RSD"], ["9000", "约 9,000 RSD"], ["14000", "高级 14,000+ RSD"]],
+      occasions: [["生日", "生日"], ["纪念日", "纪念日"], ["浪漫礼物", "浪漫"], ["感谢", "感谢"], ["道歉", "道歉"]],
+      styles: [["优雅温柔", "温柔"], ["奢华醒目", "奢华"], ["简约现代", "简约"], ["明亮多彩", "多彩"]],
+      extrasOptions: [["sweets", "加甜品"], ["toy", "加玩具"], ["clean", "只要玫瑰"], ["surprise", "给我惊喜"]],
+    },
+  };
+  return packs[state.lang] || packs.sr;
+}
+
+function renderGiftAssistant() {
+  document.querySelector("[data-assistant-fab]")?.remove();
+  document.querySelector("[data-assistant-panel]")?.remove();
+  const copyText = getAssistantCopy();
+  document.body.insertAdjacentHTML("beforeend", `
+    <button class="assistant-fab" type="button" data-assistant-fab aria-label="${t("assistant.open")}">
+      <span>AI</span>${t("assistant.open")}
+    </button>
+    <section class="assistant-panel" data-assistant-panel hidden aria-live="polite">
+      <div class="assistant-card">
+        <div class="assistant-head">
+          <div>
+            <p class="eyebrow">${t("assistant.kicker")}</p>
+            <h2>${t("assistant.title")}</h2>
+          </div>
+          <button class="wheel-close" type="button" data-assistant-close aria-label="${t("assistant.close")}">×</button>
+        </div>
+        <div class="assistant-thread" data-assistant-thread>
+          <p class="assistant-bubble assistant-bubble-bot">${copyText.intro}</p>
+        </div>
+        <div class="assistant-options" data-assistant-options></div>
+      </div>
+    </section>
+  `);
+  renderAssistantStep();
+}
+
+function getAssistantQuestion() {
+  const c = getAssistantCopy();
+  if (state.assistant.step === "start") return c.budget;
+  if (state.assistant.step === "occasion") return c.occasion;
+  if (state.assistant.step === "style") return c.style;
+  if (state.assistant.step === "extras") return c.extras;
+  return c.result;
+}
+
+function getAssistantOptions() {
+  const c = getAssistantCopy();
+  if (state.assistant.step === "start") return c.budgets.map(([value, label]) => ({ value, label, type: "budget" }));
+  if (state.assistant.step === "occasion") return c.occasions.map(([value, label]) => ({ value, label, type: "occasion" }));
+  if (state.assistant.step === "style") return c.styles.map(([value, label]) => ({ value, label, type: "style" }));
+  if (state.assistant.step === "extras") return c.extrasOptions.map(([value, label]) => ({ value, label, type: "extras" }));
+  return [];
+}
+
+function renderAssistantStep() {
+  const panel = document.querySelector("[data-assistant-panel]");
+  const thread = document.querySelector("[data-assistant-thread]");
+  const options = document.querySelector("[data-assistant-options]");
+  if (!panel || !thread || !options) return;
+  if (state.assistant.step !== "result") {
+    const existingQuestion = thread.querySelector("[data-assistant-question]");
+    existingQuestion?.remove();
+    thread.insertAdjacentHTML("beforeend", `<p class="assistant-bubble assistant-bubble-bot" data-assistant-question>${getAssistantQuestion()}</p>`);
+    options.innerHTML = getAssistantOptions().map((item) => `<button type="button" data-assistant-answer data-answer-type="${item.type}" data-answer-value="${escapeHtml(item.value)}">${escapeHtml(item.label)}</button>`).join("");
+    return;
+  }
+  const suggestion = state.latestSuggestion;
+  const c = getAssistantCopy();
+  options.innerHTML = `
+    <button class="assistant-primary" type="button" data-assistant-add>${t("assistant.add")}</button>
+    <a href="custom.html">${t("assistant.custom")}</a>
+    <a href="shop.html">${t("assistant.shop")}</a>
+    <button type="button" data-assistant-restart>${t("assistant.restart")}</button>`;
+  thread.insertAdjacentHTML("beforeend", `
+    <div class="assistant-result" data-assistant-result>
+      <p class="eyebrow">${c.result}</p>
+      <h3>${escapeHtml(suggestion.name)}</h3>
+      <strong>${formatMoney(suggestion.price)}</strong>
+      <ul>${suggestion.details.map((detail) => `<li>${escapeHtml(detail)}</li>`).join("")}</ul>
+      <p>${c.resultText}</p>
+    </div>`);
+}
+
+function openAssistant() {
+  document.querySelector("[data-assistant-panel]")?.removeAttribute("hidden");
+}
+
+function closeAssistant() {
+  document.querySelector("[data-assistant-panel]")?.setAttribute("hidden", "");
+}
+
+function resetAssistant() {
+  state.assistant = { step: "start", answers: {} };
+  state.latestSuggestion = null;
+  renderGiftAssistant();
+  openAssistant();
+}
+
+function handleAssistantAnswer(button) {
+  const type = button.dataset.answerType;
+  const value = button.dataset.answerValue;
+  state.assistant.answers[type] = value;
+  const thread = document.querySelector("[data-assistant-thread]");
+  thread?.insertAdjacentHTML("beforeend", `<p class="assistant-bubble assistant-bubble-user">${escapeHtml(button.textContent.trim())}</p>`);
+  if (type === "budget") state.assistant.step = "occasion";
+  if (type === "occasion") state.assistant.step = "style";
+  if (type === "style") state.assistant.step = "extras";
+  if (type === "extras") {
+    const budget = Math.max(Number(state.assistant.answers.budget) || STORE.minGiftBudget, STORE.minGiftBudget);
+    const style = state.assistant.answers.style || "Elegantno i nežno";
+    const occasion = state.assistant.answers.occasion || "Rođendan";
+    let adjustedStyle = style;
+    if (value === "sweets" && !/luks|lux|å¥¢|ves|bright|color|å½©/i.test(adjustedStyle)) adjustedStyle = `${style} veselo`;
+    if (value === "clean") adjustedStyle = `${style} minimalno`;
+    state.latestSuggestion = buildConciergeSuggestion(budget, occasion, adjustedStyle);
+    state.assistant.step = "result";
+  }
+  renderAssistantStep();
+}
+
+function addAssistantSuggestionToCart() {
+  const suggestion = state.latestSuggestion;
+  if (!suggestion) return;
+  addToCart({
+    id: `assistant-${Date.now()}`,
+    name: suggestion.name,
+    orderNameSr: suggestion.nameSr,
+    category: t("suggestionDetails"),
+    price: Number(suggestion.price),
+    details: suggestion.details.join("; "),
+    orderDetailsSr: suggestion.detailsSr.join("; "),
+  });
+  const thread = document.querySelector("[data-assistant-thread]");
+  thread?.insertAdjacentHTML("beforeend", `<p class="assistant-bubble assistant-bubble-bot">${getAssistantCopy().added}</p>`);
+}
+
 async function shareProduct(product) {
   const shareUrl = `${location.origin}${location.pathname.replace(/[^/]+$/, "shop.html")}#${product.id}`;
   const text = `${product.name} - ${product.description} Cena: ${formatMoney(product.price)}.`;
@@ -2206,6 +2632,16 @@ async function shareProduct(product) {
 
   await navigator.clipboard.writeText(`${text}\n${shareUrl}`);
   alert("Link i opis proizvoda su kopirani.");
+}
+
+function focusShopResultsOnMobile() {
+  if (!window.matchMedia("(max-width: 779px)").matches) return;
+  const grid = document.querySelector("[data-product-grid]");
+  if (!grid) return;
+  window.setTimeout(() => {
+    const top = grid.getBoundingClientRect().top + window.scrollY - 14;
+    window.scrollTo({ top, behavior: "smooth" });
+  }, 80);
 }
 
 document.addEventListener("click", (event) => {
@@ -2225,6 +2661,11 @@ document.addEventListener("click", (event) => {
   const wheelApply = event.target.closest("[data-wheel-apply]");
   const closeReview = event.target.closest("[data-close-checkout-review]");
   const confirmReview = event.target.closest("[data-confirm-checkout]");
+  const assistantOpen = event.target.closest("[data-assistant-fab]");
+  const assistantClose = event.target.closest("[data-assistant-close]");
+  const assistantAnswer = event.target.closest("[data-assistant-answer]");
+  const assistantAdd = event.target.closest("[data-assistant-add]");
+  const assistantRestart = event.target.closest("[data-assistant-restart]");
 
   if (backToTop) {
     event.preventDefault();
@@ -2240,6 +2681,11 @@ document.addEventListener("click", (event) => {
   if (wheelApply) applyWheelCoupon();
   if (closeReview) closeCheckoutReview();
   if (confirmReview) confirmCheckout();
+  if (assistantOpen) openAssistant();
+  if (assistantClose) closeAssistant();
+  if (assistantAnswer) handleAssistantAnswer(assistantAnswer);
+  if (assistantAdd) addAssistantSuggestionToCart();
+  if (assistantRestart) resetAssistant();
   if (navToggle) {
     document.querySelector("[data-nav]").classList.toggle("is-open");
     document.querySelector(".header-actions").classList.toggle("is-open");
@@ -2264,6 +2710,7 @@ document.addEventListener("click", (event) => {
     state.activeFilter = filterButton.dataset.filter;
     document.querySelectorAll("[data-filter]").forEach((button) => button.classList.toggle("is-active", button === filterButton));
     renderProducts(document.querySelector("[data-product-grid]"));
+    focusShopResultsOnMobile();
   }
   if (event.target.closest("[data-reset-filters]")) {
     document.querySelector("[data-search]").value = "";
@@ -2272,6 +2719,7 @@ document.addEventListener("click", (event) => {
     state.activeFilter = "all";
     document.querySelectorAll("[data-filter]").forEach((button) => button.classList.toggle("is-active", button.dataset.filter === "all"));
     renderProducts(document.querySelector("[data-product-grid]"));
+    focusShopResultsOnMobile();
   }
   if (shareButton) {
     const index = products.findIndex((item) => item.id === shareButton.dataset.shareProduct);
@@ -2322,6 +2770,9 @@ document.addEventListener("input", (event) => {
   if (event.target.matches("[data-price-input]")) {
     updateCustomPreview(event.target.closest("[data-custom-form]"));
   }
+  if (event.target.matches("[data-ready-toy]")) {
+    updateReadyToyPreview(event.target);
+  }
   if (event.target.matches('select[name="roseColor"]')) {
     renderColorPalette();
     updateCustomPreview(event.target.closest("[data-custom-form]"));
@@ -2335,6 +2786,7 @@ document.addEventListener("change", (event) => {
   }
   if (event.target.matches("[data-occasion-filter]")) {
     renderProducts(document.querySelector("[data-product-grid]"));
+    focusShopResultsOnMobile();
   }
   if (event.target.matches("[data-price-input]")) {
     updateCustomPreview(event.target.closest("[data-custom-form]"));
