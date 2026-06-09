@@ -6,10 +6,14 @@ const STORE = {
   rateApi: "https://api.frankfurter.app/latest?from=EUR&to=RSD",
   rosePrice: 240,
   roseCost: 18,
+  maxRoses: 101,
+  memorialMaxRoses: 100,
+  special101Price: 25000,
   toyPrice: 850,
   toyCost: 400,
   minGiftBudget: 1500,
   estimatedDelivery: 500,
+  productionTimeSr: "3-7 dana, osim ako drugačije potvrdimo u poruci",
   laborBase: 900,
   laborPerRose: 35,
   bouquetWrapCost: 350,
@@ -26,6 +30,14 @@ const COUPONS = {
   POVRATAK20: { percent: 20, label: "20% za sledeću kupovinu" },
 };
 
+const WHEEL_PRIZES = [
+  { percent: 8, label: "8% popusta na personalizovan poklon", weight: 45 },
+  { percent: 10, label: "10% popusta na sledeću porudžbinu", weight: 30 },
+  { percent: 12, label: "12% popusta za ručni rad po meri", weight: 15 },
+  { percent: 15, label: "15% popusta za preporuku prijatelja", weight: 7 },
+  { percent: 20, label: "20% popusta za najbrže kupce", weight: 3 },
+];
+
 const ADDON_PRICES = {
   glitterAccent: 350,
   glitterFull: 900,
@@ -37,6 +49,15 @@ const ADDON_PRICES = {
   photo: 750,
 };
 
+function readStoredJson(key, fallback) {
+  try {
+    return JSON.parse(localStorage.getItem(key) || "null") || fallback;
+  } catch (error) {
+    localStorage.removeItem(key);
+    return fallback;
+  }
+}
+
 const state = {
   cart: JSON.parse(localStorage.getItem("eterniorCart") || "[]"),
   lang: localStorage.getItem("eterniorLang") || "sr",
@@ -44,7 +65,15 @@ const state = {
   eurRsd: Number(localStorage.getItem("eterniorRate")) || STORE.fallbackEurRsd,
   activeFilter: "all",
   latestSuggestion: null,
+  wheelPrize: readStoredJson("eterniorWheelPrize", null),
+  orderId: localStorage.getItem("eterniorOrderId") || "",
+  pendingCheckout: null,
 };
+
+if (!state.cart.length && state.orderId) {
+  state.orderId = "";
+  localStorage.removeItem("eterniorOrderId");
+}
 
 const copy = {
   sr: {
@@ -68,8 +97,18 @@ const copy = {
     "cart.pickupInfo": "Lično preuzimanje: Bor, 19210, Srbija",
     "cart.deliveryRequired": "Za dostavu su obavezni ime, telefon, grad sa poštanskim brojem i adresa.",
     "cart.nameRequired": "Upiši ime pre slanja upita.",
+    "cart.deliveryChoiceRequired": "Izaberi dostavu ili lično preuzimanje pre slanja upita.",
     "cart.requiredHint": "Polja za dostavu postaju obavezna samo kada izabereš dostavu.",
+    "cart.productionNote": "Rok izrade i isporuke je najčešće 3-7 dana, osim ako se drugačije potvrdi u poruci.",
+    "cart.customerSection": "Podaci za potvrdu",
     "cart.orderSummary": "Pregled korpe",
+    "cart.orderId": "Šifra upita",
+    "cart.reviewTitle": "Proveri upit pre slanja",
+    "cart.reviewText": "Ovo je poruka koju ćemo dobiti. Ako je sve u redu, potvrdi i otvori aplikaciju za slanje.",
+    "cart.reviewConfirm": "Potvrdi i pošalji",
+    "cart.reviewEdit": "Vrati se na korpu",
+    "cart.reviewItems": "Stavke",
+    "cart.reviewTime": "Rok",
     "cart.deliverySection": "Preuzimanje i dostava",
     "cart.contactSection": "Kontakt za slanje",
     "cart.contactApp": "Aplikacija za slanje upita",
@@ -78,7 +117,7 @@ const copy = {
     "cart.wechatCopied": "Porudžbina je kopirana. Otvori WeChat i pošalji je na Eternior kontakt: {id}.",
     "cart.shipping": "Dostava",
     "cart.pickup": "Lično preuzimanje",
-    "cart.decide": "Dogovor preko WhatsApp-a",
+    "cart.decide": "Izaberi način",
     "cart.each": "po komadu",
     "cart.close": "Zatvori korpu",
     "cart.itemDetails": "Detalji porudžbine",
@@ -90,6 +129,11 @@ const copy = {
     "filter.memorial": "Za preminule",
     "filter.reset": "Resetuj filtere",
     "filter.allOccasions": "Sve prilike",
+    "badge.best": "Najčešći izbor",
+    "badge.gift": "Siguran poklon",
+    "badge.luxury": "Premium",
+    "badge.romance": "Romantično",
+    "badge.custom": "Po meri",
     "filter.birthday": "Rođendan",
     "filter.romance": "Romantično",
     "filter.luxury": "Luksuzno",
@@ -137,7 +181,13 @@ const copy = {
     "custom.pricingNote": "Cena uključuje materijal, ručni rad, pakovanje i rezervu za završnu obradu.",
     "custom.coupon": "Kupon kod",
     "custom.applyCoupon": "Primeni kupon",
-    "custom.couponHint": "Kuponi se dobijaju uz porudžbinu ili preporuku prijatelja.",
+    "custom.couponPlaceholder": "Upiši kod sa kartice",
+    "custom.couponHint": "Ako imaš fizički kupon, upiši kod sa kartice. Popust važi nakon potvrde u poruci i može se evidentirati kao iskorišćen.",
+    "custom.useWheelCoupon": "Ubaci moj kupon iz točka",
+    "custom.perkOne": "Predračun pre slanja",
+    "custom.perkTwo": "Kuponi i preporuke",
+    "custom.perkThree": "Dogovor pre izrade",
+    "custom.invalidCoupon": "Kupon nije aktivan ili je već iskorišćen.",
     "custom.discount": "Popust",
     "custom.glitter": "Glitter",
     "custom.glitterNone": "Bez glittera",
@@ -183,13 +233,13 @@ const copy = {
     "concierge.generate": "Predloži poklon",
     "contact.eyebrow": "Poručivanje",
     "contact.title": "Sve se dogovara brzo i jasno preko poruke.",
-    "contact.lead": "Kada pošalješ korpu, dobijamo spremnu poruku sa proizvodima, budžetom, napomenama i izborom dostave. Posle toga potvrđujemo detalje pre izrade ili slanja.",
+    "contact.lead": "Kada pošalješ korpu, dobijamo spremnu poruku sa proizvodima, budžetom, napomenama i izborom dostave. Posle toga potvrđujemo cenu, dostupnost, rok izrade/isporuke i sve detalje pre rada.",
     "contact.stepOneTitle": "Izaberi",
     "contact.stepOneText": "Dodaj gotov proizvod ili napravi personalizovan poklon po budžetu.",
     "contact.stepTwoTitle": "Pošalji",
     "contact.stepTwoText": "Klik na slanje upita priprema poruku koju možeš proveriti pre slanja.",
     "contact.stepThreeTitle": "Potvrdi",
-    "contact.stepThreeText": "Dogovaramo cenu, rok, dostavu ili lično preuzimanje.",
+    "contact.stepThreeText": "Dogovaramo cenu, rok izrade/isporuke, dostavu ili lično preuzimanje.",
     "contact.readyEyebrow": "Spreman/na?",
     "contact.readyTitle": "Počni od kolekcije ili napravi svoj poklon.",
     "footer.text": "Satenske ruže, buketi i slatke kutije napravljene za trenutke koji se pamte.",
@@ -197,34 +247,43 @@ const copy = {
     "footer.custom": "Napravi personalizovan poklon",
     "footer.shop": "Pogledaj gotove poklone",
     "footer.contactTitle": "Kontakt",
-    "footer.location": "Lokacija: Istočna Srbija",
+    "footer.location": "Lokacija: Bor, 19210, Srbija",
     "footer.handmadeTitle": "Ručni rad",
     "footer.handmadeText": "Svaka satenska ruža se pravi ručno, pažljivo sklapa i pakuje kao poklon koji traje.",
     "footer.orderingTitle": "Poručivanje",
-    "footer.orderingText": "Porudžbina se šalje preko WhatsApp-a ili WeChat-a i potvrđuje pre izrade ili slanja.",
+    "footer.orderingText": "Porudžbina se šalje preko WhatsApp-a ili WeChat-a i potvrđuje pre izrade. Rok je najčešće 3-7 dana, osim ako se drugačije dogovorimo.",
     "footer.deliveryTitle": "Dostava",
-    "footer.deliveryText": "Kurirska služba po dogovoru. Okvirna cena dostave je oko 500 RSD.",
+    "footer.deliveryText": "Kurirska služba po dogovoru. Okvirna cena dostave je oko 500 RSD, a rok izrade/isporuke potvrđujemo u poruci.",
     "footer.personalTitle": "Personalizacija",
     "footer.personalText": "Gotovi proizvodi se ne menjaju, ali možeš dodati poruku ili malu igračku.",
     "footer.rulesTitle": "Pravila buketa",
-    "footer.rulesText": "Poklon aranžmani imaju neparan broj ruža. Za preminulu osobu bira se paran broj.",
+    "footer.rulesText": "Poklon aranžmani imaju neparan broj ruža, najviše 101. Za preminulu osobu bira se paran broj, najviše 100.",
     "footer.minBudgetTitle": "Minimalni budžet",
-    "footer.minBudgetText": "Najmanji budžet za personalizovan poklon je 1.500 RSD.",
+    "footer.minBudgetText": "Manji pokloni se računaju prema izboru, a za složenije personalizacije preporučujemo budžet od 1.500 RSD i više.",
     "footer.deliveryShort": "Dostava: kurirska služba, okvirno 500 RSD",
     "footer.aboutTitle": "O nama",
-    "footer.aboutText": "Eternior je mali ručni rad. Aranžmane pravi kreativna devojka od 19 godina, koja se ovim bavi već 3 godine, a sajt i marketing vodi njen partner.",
+    "footer.aboutText": "Iza Eterniora stoji Alexandra, mlada kreativka iz Istočne Srbije koja već tri godine ručno pravi satenske ruže. Svaku laticu savija strpljivo, bira boje kao da pravi poklon za nekoga svog i ne pušta aranžman dok ne izgleda nežno, uredno i posebno. Kada izabereš Eternior, ne kupuješ samo dekoraciju, već sate pažnje, mirne ruke i ideju da osoba koja dobije poklon oseti da je vredna truda.",
     "footer.legalTitle": "Pravne informacije",
     "footer.legalText": "Naziv/PIB/adresu dodati nakon registracije ili po potrebi.",
     "footer.confirmText": "Porudžbina se potvrđuje tek nakon dogovora preko poruke.",
     "faq.title": "Česta pitanja",
     "faq.budgetQ": "Koliki je minimalni budžet?",
-    "faq.budgetA": "Minimalni budžet za bilo kakav poklon je 1.500 RSD. Gotovi proizvodi imaju svoju cenu, a personalizovani se računaju prema broju ruža i dodataka.",
+    "faq.budgetA": "Mali pokloni se računaju prema broju ruža i dodataka, bez dodavanja minimalnog budžeta na cenu. Za složenije personalizacije preporučujemo budžet od 1.500 RSD i više.",
     "faq.deliveryQ": "Koliko košta dostava?",
-    "faq.deliveryA": "Dostava zavisi od kurirske službe i mesta isporuke, ali okvirno je oko 500 RSD. Tačan iznos potvrđujemo preko WhatsApp-a.",
+    "faq.deliveryA": "Dostava zavisi od kurirske službe i mesta isporuke, ali okvirno je oko 500 RSD. Rok izrade i isporuke je najčešće 3-7 dana, osim ako se drugačije potvrdi u poruci.",
     "faq.readyQ": "Da li mogu da menjam gotov proizvod?",
     "faq.readyA": "Gotovi proizvodi se ne menjaju, ali možeš dodati personalizovanu ručno pisanu poruku ili malu igračku.",
+    "wheel.title": "Zavrti točak sreće",
+    "wheel.text": "Osvoji kupon za svoj prvi ili sledeći Eternior poklon. Jedan kupon čuvamo za ovaj uređaj.",
+    "wheel.spin": "Zavrti",
+    "wheel.close": "Kasnije",
+    "wheel.won": "Tvoj kupon",
+    "wheel.apply": "Primeni u kreatoru",
+    "wheel.saved": "Kupon je sačuvan. Možeš ga iskoristiti kada praviš svoj poklon.",
+    "wheel.used": "Kupon je već iskorišćen na ovom uređaju.",
+    "wheel.open": "Moj kupon",
     "faq.rosesQ": "Koliko ruža mogu da izaberem?",
-    "faq.rosesA": "Za poklon se bira neparan broj ruža. Ako je aranžman namenjen preminuloj osobi, bira se paran broj ruža.",
+    "faq.rosesA": "Za poklon se bira neparan broj ruža, najviše 101. Aranžman od 101 ruže je poseban veliki aranžman od 25.000 RSD pre dodataka. Ako je aranžman namenjen preminuloj osobi, bira se paran broj ruža, najviše 100.",
     "faq.careQ": "Kako se održavaju satenske ruže?",
     "faq.careA": "Drže se na suvom, dalje od direktnog sunca i ne peru se vodom. Po potrebi se nežno očiste suvom mekom četkicom.",
     add: "Dodaj u korpu",
@@ -245,11 +304,11 @@ const copy = {
     "terms.title": "Uslovi korišćenja",
     "terms.lead": "Ova stranica objašnjava kako funkcioniše poručivanje preko Eternior sajta.",
     "terms.orderTitle": "Status porudžbine",
-    "terms.orderText": "Sajt služi kao online katalog i alat za slanje upita preko WhatsApp-a ili WeChat-a. Porudžbina nije konačna dok se dostupnost, cena, rok izrade, dostava i način plaćanja ne potvrde direktno u komunikaciji.",
+    "terms.orderText": "Sajt služi kao online katalog i alat za slanje upita preko WhatsApp-a ili WeChat-a. Porudžbina nije konačna dok se dostupnost, cena, rok izrade/isporuke, dostava i način plaćanja ne potvrde direktno u komunikaciji. Uobičajen rok je 3-7 dana, osim ako se drugačije navede u dogovoru.",
     "terms.handmadeTitle": "Ručno rađeni proizvodi",
     "terms.handmadeText": "Svaki proizvod je ručni rad, pa su mala odstupanja u nijansi, rasporedu, dekoraciji i obliku moguća. Boje na ekranu mogu izgledati drugačije nego uživo zbog osvetljenja, kamere i podešavanja ekrana.",
     "terms.pricesTitle": "Cene i kuponi",
-    "terms.pricesText": "Cene na sajtu su okvirne i mogu se korigovati pre potvrde porudžbine ako se promeni dostupnost materijala, veličina kutije, količina slatkiša ili posebni zahtevi. Kuponi važe samo ako ih Eternior potvrdi u razgovoru.",
+    "terms.pricesText": "Cene na sajtu su okvirne i mogu se korigovati pre potvrde porudžbine ako se promeni dostupnost materijala, veličina kutije, količina slatkiša ili posebni zahtevi. Kuponi važe samo ako ih Eternior potvrdi u razgovoru. Fizički kupon može biti tražen na uvid ili evidentiran kao iskorišćen.",
     "terms.statusTitle": "Firma i odgovornost",
     "terms.statusText": "Eternior trenutno funkcioniše kao mali kreativni projekat i nije registrovana firma. Podaci o firmi, PIB-u i formalnim pravilima biće dodati ako se status promeni. Kupac poručivanjem prihvata da se sve potvrđuje individualnim dogovorom.",
     "privacy.eyebrow": "Privatnost",
@@ -262,7 +321,7 @@ const copy = {
     "privacy.shareTitle": "Deljenje podataka",
     "privacy.shareText": "Adresa i kontakt mogu biti prosleđeni kurirskoj službi samo ako kupac izabere dostavu. Podaci se ne prodaju i ne koriste za neovlašćeni marketing.",
     "privacy.couponTitle": "Kuponi i preporuke",
-    "privacy.couponText": "Ako kupac koristi kupon ili preporuku, kod se može zabeležiti radi evidencije popusta i pogodnosti za buduću kupovinu.",
+    "privacy.couponText": "Ako kupac koristi kupon ili preporuku, kod se može zabeležiti radi evidencije popusta, sprečavanja ponovne upotrebe i pogodnosti za buduću kupovinu.",
   },
   en: {
     "nav.home": "Home",
@@ -285,8 +344,18 @@ const copy = {
     "cart.pickupInfo": "Pickup location: Bor, 19210, Serbia",
     "cart.deliveryRequired": "For delivery, name, phone, city with postal code and address are required.",
     "cart.nameRequired": "Enter your name before sending the inquiry.",
+    "cart.deliveryChoiceRequired": "Choose shipping or local pickup before sending the inquiry.",
     "cart.requiredHint": "Delivery fields become required only when shipping is selected.",
+    "cart.productionNote": "Production and delivery time is usually 3-7 days, unless confirmed differently in chat.",
+    "cart.customerSection": "Confirmation details",
     "cart.orderSummary": "Cart summary",
+    "cart.orderId": "Inquiry code",
+    "cart.reviewTitle": "Review before sending",
+    "cart.reviewText": "This is the message we will receive. If everything looks right, confirm and open the sending app.",
+    "cart.reviewConfirm": "Confirm and send",
+    "cart.reviewEdit": "Back to cart",
+    "cart.reviewItems": "Items",
+    "cart.reviewTime": "Time",
     "cart.deliverySection": "Pickup and delivery",
     "cart.contactSection": "Contact for sending",
     "cart.contactApp": "App for sending inquiry",
@@ -295,7 +364,7 @@ const copy = {
     "cart.wechatCopied": "The order was copied. Open WeChat and send it to the Eternior contact: {id}.",
     "cart.shipping": "Shipping",
     "cart.pickup": "Local pickup",
-    "cart.decide": "Decide on WhatsApp",
+    "cart.decide": "Choose option",
     "cart.each": "each",
     "cart.close": "Close cart",
     "cart.itemDetails": "Order details",
@@ -307,6 +376,11 @@ const copy = {
     "filter.memorial": "Memorial",
     "filter.reset": "Reset filters",
     "filter.allOccasions": "All occasions",
+    "badge.best": "Most chosen",
+    "badge.gift": "Safe gift",
+    "badge.luxury": "Premium",
+    "badge.romance": "Romantic",
+    "badge.custom": "Custom",
     "filter.birthday": "Birthday",
     "filter.romance": "Romantic",
     "filter.luxury": "Luxury",
@@ -354,7 +428,13 @@ const copy = {
     "custom.pricingNote": "Price includes materials, handmade work, packaging and finishing buffer.",
     "custom.coupon": "Coupon code",
     "custom.applyCoupon": "Apply coupon",
-    "custom.couponHint": "Coupons are received with an order or by referring a friend.",
+    "custom.couponPlaceholder": "Enter the code from your card",
+    "custom.couponHint": "If you have a physical coupon, enter the code from the card. The discount applies after chat confirmation and may be marked as used.",
+    "custom.useWheelCoupon": "Use my wheel coupon",
+    "custom.perkOne": "Estimate before sending",
+    "custom.perkTwo": "Coupons and referrals",
+    "custom.perkThree": "Confirmed before making",
+    "custom.invalidCoupon": "This coupon is not active or has already been used.",
     "custom.discount": "Discount",
     "custom.glitter": "Glitter",
     "custom.glitterNone": "No glitter",
@@ -400,13 +480,13 @@ const copy = {
     "concierge.generate": "Suggest a gift",
     "contact.eyebrow": "Ordering",
     "contact.title": "Everything is confirmed clearly through chat.",
-    "contact.lead": "When you send the cart, we receive a prepared message with products, budget, notes and delivery choice. Then we confirm the details before making or shipping.",
+    "contact.lead": "When you send the cart, we receive a prepared message with products, budget, notes and delivery choice. Then we confirm the price, availability, production/delivery time and all details before making.",
     "contact.stepOneTitle": "Choose",
     "contact.stepOneText": "Add a ready product or create a custom gift by budget.",
     "contact.stepTwoTitle": "Send",
     "contact.stepTwoText": "The inquiry button prepares a message you can check before sending.",
     "contact.stepThreeTitle": "Confirm",
-    "contact.stepThreeText": "We agree on price, timing, shipping or local pickup.",
+    "contact.stepThreeText": "We agree on price, production/delivery time, shipping or local pickup.",
     "contact.readyEyebrow": "Ready?",
     "contact.readyTitle": "Start from the collection or create your own gift.",
     "footer.text": "Satin roses, bouquets and sweet boxes made for memorable moments.",
@@ -414,34 +494,43 @@ const copy = {
     "footer.custom": "Create a personalized gift",
     "footer.shop": "View ready gifts",
     "footer.contactTitle": "Contact",
-    "footer.location": "Location: Eastern Serbia",
+    "footer.location": "Location: Bor, 19210, Serbia",
     "footer.handmadeTitle": "Handmade",
     "footer.handmadeText": "Each satin rose is handmade, carefully arranged and packed as a gift that lasts.",
     "footer.orderingTitle": "Ordering",
-    "footer.orderingText": "The order is sent through WhatsApp or WeChat and confirmed before making or shipping.",
+    "footer.orderingText": "The order is sent through WhatsApp or WeChat and confirmed before making. The usual time is 3-7 days unless agreed differently.",
     "footer.deliveryTitle": "Delivery",
-    "footer.deliveryText": "Courier delivery by agreement. Estimated delivery is around 500 RSD.",
+    "footer.deliveryText": "Courier delivery by agreement. Estimated delivery is around 500 RSD, and production/delivery time is confirmed in chat.",
     "footer.personalTitle": "Personalization",
     "footer.personalText": "Ready products cannot be changed, but you can add a message or a small toy.",
     "footer.rulesTitle": "Bouquet rules",
-    "footer.rulesText": "Gift arrangements use an odd number of roses. For a deceased person, choose an even number.",
+    "footer.rulesText": "Gift arrangements use an odd number of roses, up to 101. For a deceased person, choose an even number, up to 100.",
     "footer.minBudgetTitle": "Minimum budget",
-    "footer.minBudgetText": "The minimum budget for a personalized gift is 1,500 RSD.",
+    "footer.minBudgetText": "Small gifts are calculated by selection, while more detailed custom gifts are best planned from 1,500 RSD and up.",
     "footer.deliveryShort": "Delivery: courier service, around 500 RSD",
     "footer.aboutTitle": "About us",
-    "footer.aboutText": "Eternior is a small handmade project. The arrangements are made by a creative 19-year-old who has been doing this for 3 years, while her partner handles the website and marketing.",
+    "footer.aboutText": "Behind Eternior is Alexandra, a young creative maker from Eastern Serbia who has been handcrafting satin roses for three years. She folds every petal patiently, chooses colors as if the gift were for someone close to her, and does not finish an arrangement until it feels gentle, polished and personal. When you choose Eternior, you are not only buying decoration, but hours of care and a gift that makes someone feel truly thought of.",
     "footer.legalTitle": "Legal information",
     "footer.legalText": "Business name/tax ID/address can be added after registration or when needed.",
     "footer.confirmText": "The order is confirmed only after agreement through chat.",
     "faq.title": "FAQ",
     "faq.budgetQ": "What is the minimum budget?",
-    "faq.budgetA": "The minimum budget for any gift is 1,500 RSD. Ready products have fixed prices, while personalized gifts are calculated by roses and add-ons.",
+    "faq.budgetA": "Small gifts are calculated by roses and add-ons, without adding a minimum budget to the price. For more detailed custom gifts, we recommend planning from 1,500 RSD and up.",
     "faq.deliveryQ": "How much is delivery?",
-    "faq.deliveryA": "Delivery depends on the courier service and destination, but it is usually around 500 RSD. The exact amount is confirmed through WhatsApp.",
+    "faq.deliveryA": "Delivery depends on the courier service and destination, but it is usually around 500 RSD. Production and delivery time is usually 3-7 days unless confirmed differently in chat.",
     "faq.readyQ": "Can I change a ready product?",
     "faq.readyA": "Ready products cannot be changed, but you can add a personalized handwritten message or a small toy.",
+    "wheel.title": "Spin the gift wheel",
+    "wheel.text": "Win a coupon for your first or next Eternior gift. One coupon is saved for this device.",
+    "wheel.spin": "Spin",
+    "wheel.close": "Later",
+    "wheel.won": "Your coupon",
+    "wheel.apply": "Apply in builder",
+    "wheel.saved": "Your coupon is saved. You can use it while creating your gift.",
+    "wheel.used": "This coupon has already been used on this device.",
+    "wheel.open": "My coupon",
     "faq.rosesQ": "How many roses can I choose?",
-    "faq.rosesA": "Gift arrangements use an odd number of roses. If the arrangement is for a deceased person, choose an even number.",
+    "faq.rosesA": "Gift arrangements use an odd number of roses, up to 101. The 101-rose arrangement is a special large arrangement priced at 25,000 RSD before add-ons. If the arrangement is for a deceased person, choose an even number, up to 100.",
     "faq.careQ": "How do I care for satin roses?",
     "faq.careA": "Keep them dry, away from direct sunlight, and do not wash with water. If needed, clean gently with a dry soft brush.",
     add: "Add to cart",
@@ -462,11 +551,11 @@ const copy = {
     "terms.title": "Terms of Use",
     "terms.lead": "This page explains how ordering through the Eternior website works.",
     "terms.orderTitle": "Order Status",
-    "terms.orderText": "The website is an online catalog and inquiry tool for WhatsApp or WeChat. An order is not final until availability, price, production time, delivery and payment method are confirmed directly in chat.",
+    "terms.orderText": "The website is an online catalog and inquiry tool for WhatsApp or WeChat. An order is not final until availability, price, production/delivery time, delivery and payment method are confirmed directly in chat. The usual time is 3-7 days unless agreed differently.",
     "terms.handmadeTitle": "Handmade Products",
     "terms.handmadeText": "Every product is handmade, so small differences in shade, layout, decoration and shape are possible. Screen colors may differ from real life because of lighting, camera and display settings.",
     "terms.pricesTitle": "Prices and Coupons",
-    "terms.pricesText": "Website prices are estimates and may be adjusted before confirmation if material availability, box size, sweet quantity or special requests change. Coupons apply only after Eternior confirms them in chat.",
+    "terms.pricesText": "Website prices are estimates and may be adjusted before confirmation if material availability, box size, sweet quantity or special requests change. Coupons apply only after Eternior confirms them in chat. A physical coupon may be requested for verification or recorded as used.",
     "terms.statusTitle": "Business Status and Liability",
     "terms.statusText": "Eternior currently operates as a small creative project and is not a registered company. Company details, tax number and formal rules will be added if the status changes. By ordering, the customer accepts that everything is confirmed by individual agreement.",
     "privacy.eyebrow": "Privacy",
@@ -479,7 +568,7 @@ const copy = {
     "privacy.shareTitle": "Data Sharing",
     "privacy.shareText": "Address and contact may be shared with a courier only if the customer chooses delivery. Data is not sold and is not used for unauthorized marketing.",
     "privacy.couponTitle": "Coupons and Referrals",
-    "privacy.couponText": "If the customer uses a coupon or referral, the code may be recorded for discount and future-benefit tracking.",
+    "privacy.couponText": "If the customer uses a coupon or referral, the code may be recorded for discount tracking, preventing repeated use and future benefits.",
   },
   zh: {
     "nav.home": "首页",
@@ -502,8 +591,18 @@ const copy = {
     "cart.pickupInfo": "自取地点：Bor, 19210, Serbia",
     "cart.deliveryRequired": "配送需要姓名、电话、城市和邮编以及地址。",
     "cart.nameRequired": "发送咨询前请输入姓名。",
+    "cart.deliveryChoiceRequired": "发送咨询前请选择配送或自取。",
     "cart.requiredHint": "只有选择配送时，配送信息才为必填。",
+    "cart.productionNote": "制作和配送通常需要 3-7 天，除非聊天中另行确认。",
+    "cart.customerSection": "确认信息",
     "cart.orderSummary": "购物车摘要",
+    "cart.orderId": "咨询编号",
+    "cart.reviewTitle": "发送前确认",
+    "cart.reviewText": "这是我们将收到的消息。如果信息正确，请确认并打开应用发送。",
+    "cart.reviewConfirm": "确认并发送",
+    "cart.reviewEdit": "返回购物车",
+    "cart.reviewItems": "商品",
+    "cart.reviewTime": "时间",
     "cart.deliverySection": "自取和配送",
     "cart.contactSection": "发送方式",
     "cart.contactApp": "发送咨询的应用",
@@ -512,7 +611,7 @@ const copy = {
     "cart.wechatCopied": "订单已复制。请打开微信并发送给 Eternior 联系人：{id}。",
     "cart.shipping": "配送",
     "cart.pickup": "自取",
-    "cart.decide": "WhatsApp 上确认",
+    "cart.decide": "请选择",
     "cart.each": "每件",
     "cart.close": "关闭购物车",
     "cart.itemDetails": "订单详情",
@@ -524,6 +623,11 @@ const copy = {
     "filter.memorial": "纪念",
     "filter.reset": "重置筛选",
     "filter.allOccasions": "所有场合",
+    "badge.best": "常选款",
+    "badge.gift": "稳妥礼物",
+    "badge.luxury": "高级款",
+    "badge.romance": "浪漫",
+    "badge.custom": "定制",
     "filter.birthday": "生日",
     "filter.romance": "浪漫",
     "filter.luxury": "奢华",
@@ -571,7 +675,13 @@ const copy = {
     "custom.pricingNote": "价格包含材料、手工制作、包装和收尾成本。",
     "custom.coupon": "优惠码",
     "custom.applyCoupon": "使用优惠码",
-    "custom.couponHint": "优惠码可通过订单或推荐朋友获得。",
+    "custom.couponPlaceholder": "输入卡片上的优惠码",
+    "custom.couponHint": "如果你有实体优惠卡，请输入卡上的代码。折扣需聊天确认后生效，并可能被记录为已使用。",
+    "custom.useWheelCoupon": "使用转盘优惠码",
+    "custom.perkOne": "发送前估价",
+    "custom.perkTwo": "优惠码与推荐",
+    "custom.perkThree": "制作前确认",
+    "custom.invalidCoupon": "此优惠码无效或已使用。",
     "custom.discount": "折扣",
     "custom.glitter": "闪粉",
     "custom.glitterNone": "不要闪粉",
@@ -617,13 +727,13 @@ const copy = {
     "concierge.generate": "推荐礼物",
     "contact.eyebrow": "下单方式",
     "contact.title": "所有细节都通过聊天清楚确认。",
-    "contact.lead": "发送购物车后，我们会收到包含商品、预算、备注和配送方式的消息，然后在制作或发货前确认细节。",
+    "contact.lead": "发送购物车后，我们会收到包含商品、预算、备注和配送方式的消息，然后在制作前确认价格、库存、制作/配送时间和所有细节。",
     "contact.stepOneTitle": "选择",
     "contact.stepOneText": "选择现成商品，或按预算定制礼物。",
     "contact.stepTwoTitle": "发送",
     "contact.stepTwoText": "发送咨询按钮会准备订单消息，你可以检查后再发送。",
     "contact.stepThreeTitle": "确认",
-    "contact.stepThreeText": "我们确认价格、时间、配送或自取。",
+    "contact.stepThreeText": "我们确认价格、制作/配送时间、快递或自取。",
     "contact.readyEyebrow": "准备好了吗？",
     "contact.readyTitle": "从系列开始，或定制你的礼物。",
     "footer.text": "为难忘时刻制作的缎面玫瑰、花束和甜品礼盒。",
@@ -631,22 +741,22 @@ const copy = {
     "footer.custom": "定制专属礼物",
     "footer.shop": "查看现成礼物",
     "footer.contactTitle": "联系",
-    "footer.location": "地点：塞尔维亚东部",
+    "footer.location": "地点：Bor, 19210, 塞尔维亚",
     "footer.handmadeTitle": "手工制作",
     "footer.handmadeText": "每一朵缎面玫瑰都由手工制作，细心组合并包装成持久的礼物。",
     "footer.orderingTitle": "下单",
-    "footer.orderingText": "订单可通过 WhatsApp 或微信发送，并在制作或发货前确认。",
+    "footer.orderingText": "订单可通过 WhatsApp 或微信发送，并在制作前确认。通常需要 3-7 天，除非另行约定。",
     "footer.deliveryTitle": "配送",
-    "footer.deliveryText": "快递配送另行确认，预估约 500 RSD。",
+    "footer.deliveryText": "快递配送另行确认，预估约 500 RSD，制作/配送时间会在聊天中确认。",
     "footer.personalTitle": "个性化",
     "footer.personalText": "现成产品不能更改，但可以添加留言或小玩具。",
     "footer.rulesTitle": "花束规则",
-    "footer.rulesText": "礼物花束使用奇数朵玫瑰。送给逝者时选择偶数朵。",
+    "footer.rulesText": "礼物花束使用奇数朵玫瑰，最多 101 朵。送给逝者时选择偶数朵，最多 100 朵。",
     "footer.minBudgetTitle": "最低预算",
     "footer.minBudgetText": "定制礼物最低预算为 1,500 RSD。",
     "footer.deliveryShort": "配送：快递服务，约 500 RSD",
     "footer.aboutTitle": "关于我们",
-    "footer.aboutText": "Eternior 是一个小型手工项目。作品由一位 19 岁、有 3 年经验的创意女孩制作，网站和营销由她的伴侣负责。",
+    "footer.aboutText": "Eternior 的背后是来自塞尔维亚东部的 Alexandra。她已经手工制作缎面玫瑰三年，每一片花瓣都耐心折叠，每一种颜色都像为亲近的人准备礼物一样认真选择。选择 Eternior 不只是购买装饰，而是选择一份带着时间、心意和温柔的礼物。",
     "footer.legalTitle": "法律信息",
     "footer.legalText": "公司名称/税号/地址可在注册后或需要时添加。",
     "footer.confirmText": "订单只有在聊天确认后才算确认。",
@@ -654,11 +764,22 @@ const copy = {
     "faq.budgetQ": "最低预算是多少？",
     "faq.budgetA": "任何礼物的最低预算为 1,500 RSD。现成产品有固定价格，定制礼物按玫瑰和附加选项计算。",
     "faq.deliveryQ": "配送多少钱？",
-    "faq.deliveryA": "配送费用取决于快递和目的地，通常约 500 RSD。准确金额通过 WhatsApp 确认。",
+    "faq.deliveryA": "配送费用取决于快递和目的地，通常约 500 RSD。制作和配送通常需要 3-7 天，除非聊天中另行确认。",
     "faq.readyQ": "可以更改现成产品吗？",
     "faq.readyA": "现成产品不能更改，但可以添加个性化手写留言或小玩具。",
+    "footer.minBudgetText": "小礼物按选择计算，复杂定制礼物建议从 1,500 RSD 起计划。",
+    "faq.budgetA": "小礼物按玫瑰数量和附加选项计算，不会在价格上另加最低预算。复杂定制礼物建议从 1,500 RSD 起计划。",
+    "wheel.title": "转动幸运转盘",
+    "wheel.text": "赢取 Eternior 礼物优惠码。每台设备保存一个优惠码。",
+    "wheel.spin": "开始转动",
+    "wheel.close": "稍后",
+    "wheel.won": "你的优惠码",
+    "wheel.apply": "用于定制",
+    "wheel.saved": "优惠码已保存，可在定制礼物时使用。",
+    "wheel.used": "此设备上的优惠码已使用。",
+    "wheel.open": "我的优惠码",
     "faq.rosesQ": "可以选择多少朵玫瑰？",
-    "faq.rosesA": "礼物花束使用奇数朵玫瑰。如果是送给逝者，则选择偶数朵。",
+    "faq.rosesA": "礼物花束使用奇数朵玫瑰，最多 101 朵。101 朵玫瑰是大型特殊花束，附加项前价格为 25,000 RSD。送给逝者时选择偶数朵，最多 100 朵。",
     "faq.careQ": "缎面玫瑰如何保养？",
     "faq.careA": "保持干燥，避免阳光直射，不要用水清洗。如有需要，可用干燥软刷轻轻清洁。",
     add: "加入购物车",
@@ -679,11 +800,11 @@ const copy = {
     "terms.title": "使用条款",
     "terms.lead": "本页说明如何通过 Eternior 网站下单。",
     "terms.orderTitle": "订单状态",
-    "terms.orderText": "本网站是在线目录和咨询工具，可通过 WhatsApp 或微信发送询问。只有在聊天中确认库存、价格、制作时间、配送和付款方式后，订单才算最终确认。",
+    "terms.orderText": "本网站是在线目录和咨询工具，可通过 WhatsApp 或微信发送询问。只有在聊天中确认库存、价格、制作/配送时间、配送和付款方式后，订单才算最终确认。通常需要 3-7 天，除非另行约定。",
     "terms.handmadeTitle": "手工产品",
     "terms.handmadeText": "每件产品都是手工制作，颜色、布局、装饰和形状可能会有细微差异。由于光线、相机和屏幕设置，屏幕颜色可能与实物不同。",
     "terms.pricesTitle": "价格和优惠码",
-    "terms.pricesText": "网站价格为估算价格。如果材料供应、礼盒尺寸、甜品数量或特殊要求发生变化，确认订单前价格可能调整。优惠码需由 Eternior 在聊天中确认后生效。",
+    "terms.pricesText": "网站价格为估算价格。如果材料供应、礼盒尺寸、甜品数量或特殊要求发生变化，确认订单前价格可能调整。优惠码需由 Eternior 在聊天中确认后生效。实体优惠卡可能需要核验或记录为已使用。",
     "terms.statusTitle": "经营状态和责任",
     "terms.statusText": "Eternior 目前是小型创意项目，尚未注册为公司。如果状态发生变化，将补充公司信息、税号和正式规则。客户下单即表示接受所有细节需单独确认。",
     "privacy.eyebrow": "隐私",
@@ -696,7 +817,7 @@ const copy = {
     "privacy.shareTitle": "信息分享",
     "privacy.shareText": "只有客户选择配送时，地址和联系方式才可能提供给快递公司。信息不会出售，也不会用于未经授权的营销。",
     "privacy.couponTitle": "优惠码和推荐",
-    "privacy.couponText": "如果客户使用优惠码或推荐码，该代码可能会被记录，用于折扣和后续优惠统计。",
+    "privacy.couponText": "如果客户使用优惠码或推荐码，该代码可能会被记录，用于折扣统计、防止重复使用和后续优惠。",
   },
 };
 
@@ -867,6 +988,32 @@ function saveState() {
   localStorage.setItem("eterniorLang", state.lang);
   localStorage.setItem("eterniorCurrency", state.currency);
   localStorage.setItem("eterniorRate", String(state.eurRsd));
+  if (state.orderId) localStorage.setItem("eterniorOrderId", state.orderId);
+  else localStorage.removeItem("eterniorOrderId");
+}
+
+function generateOrderId() {
+  const date = new Date();
+  const stamp = [
+    date.getFullYear(),
+    String(date.getMonth() + 1).padStart(2, "0"),
+    String(date.getDate()).padStart(2, "0"),
+  ].join("");
+  const random = Math.random().toString(36).slice(2, 6).toUpperCase();
+  return `ETR-${stamp}-${random}`;
+}
+
+function getCurrentOrderId() {
+  if (!state.orderId) {
+    state.orderId = generateOrderId();
+    saveState();
+  }
+  return state.orderId;
+}
+
+function resetOrderId() {
+  state.orderId = "";
+  localStorage.removeItem("eterniorOrderId");
 }
 
 function formatMoney(rsd) {
@@ -903,6 +1050,7 @@ function getReadyProductSpecs(product) {
       "Packaging: luxury paper or gift box, depending on the product. The ready product cannot be changed, except for a message or a small toy.",
       "Care: keep dry, away from direct sun, and do not wash with water.",
       "Detail: every arrangement is handmade, so small differences make the gift unique.",
+      "Time: usually 3-7 days unless confirmed differently in chat.",
     ];
   }
   if (state.lang === "zh") {
@@ -912,6 +1060,7 @@ function getReadyProductSpecs(product) {
       "包装：根据产品使用高级包装纸或礼盒。现成产品不能更改，只能添加留言或小玩具。",
       "保养：保持干燥，避免阳光直射，不要用水清洗。",
       "细节：每个作品都是手工制作，细微差异让礼物更独特。",
+      "时间：通常需要 3-7 天，除非聊天中另行确认。",
     ];
   }
   return [
@@ -920,7 +1069,18 @@ function getReadyProductSpecs(product) {
     `Pakovanje: ${product.box}. Gotov proizvod se ne menja, osim dodatka poruke ili male igračke.`,
     "Održavanje: držati na suvom, dalje od direktnog sunca i ne prati vodom.",
     "Detalj: svaki aranžman pravi se ručno, pa sitne razlike čine poklon jedinstvenim.",
+    "Rok: najčešće 3-7 dana, osim ako se drugačije potvrdi u poruci.",
   ];
+}
+
+function getProductBadges(product) {
+  if (product.id === "eternior-signature") return [t("badge.best"), t("badge.custom")];
+  if (product.id === "golden-proposal") return [t("badge.luxury"), t("badge.romance")];
+  if (product.id === "ferrero-heart" || product.id === "ruby-9") return [t("badge.romance")];
+  if (product.type === "sweet" || product.type === "toy") return [t("badge.gift")];
+  if (product.type === "premium") return [t("badge.luxury")];
+  if (product.id === "aurora-7" || product.id === "pastel-dream") return [t("badge.best")];
+  return [];
 }
 
 function renderProducts(target, limit) {
@@ -935,6 +1095,7 @@ function renderProducts(target, limit) {
       (product) => `
         <article class="product-card reveal" data-product-card="${product.id}">
           <div class="product-image satin-visual visual-${product.visual}" role="img" aria-label="${product.name}">
+            <div class="product-badges">${getProductBadges(product).map((badge) => `<span>${badge}</span>`).join("")}</div>
             <span class="satin-rose r1"></span>
             <span class="satin-rose r2"></span>
             <span class="satin-rose r3"></span>
@@ -1090,6 +1251,7 @@ function renderCart() {
   });
 
   const total = state.cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  const orderId = state.cart.length ? getCurrentOrderId() : "";
   panel.innerHTML = `
     <div class="cart-header">
       <div>
@@ -1100,6 +1262,7 @@ function renderCart() {
     </div>
     <div class="cart-items">
       <p class="cart-section-title">${t("cart.orderSummary")}</p>
+      ${orderId ? `<p class="cart-order-id"><span>${t("cart.orderId")}</span><strong>${orderId}</strong></p>` : ""}
       ${
         state.cart.length
           ? state.cart
@@ -1126,14 +1289,18 @@ function renderCart() {
       <form class="checkout-form" data-checkout-form>
         <div class="checkout-section">
           <p class="cart-section-title">${t("cart.deliverySection")}</p>
-          <label>${t("cart.name")}<input name="customerName" type="text" placeholder="${t("cart.name")}" autocomplete="name"></label>
           <label>${t("cart.delivery")}
             <select name="delivery">
-              <option>${t("cart.decide")}</option>
-              <option>${t("cart.pickup")}</option>
-              <option>${t("cart.shipping")}</option>
+              <option value="decide">${t("cart.decide")}</option>
+              <option value="pickup">${t("cart.pickup")}</option>
+              <option value="shipping">${t("cart.shipping")}</option>
             </select>
           </label>
+          <p class="builder-note">${t("cart.productionNote")}</p>
+        </div>
+        <div class="checkout-section checkout-details" data-checkout-details hidden>
+          <p class="cart-section-title">${t("cart.customerSection")}</p>
+          <label>${t("cart.name")}<input name="customerName" type="text" placeholder="${t("cart.name")}" autocomplete="name"></label>
           <div class="delivery-fields" data-delivery-fields>
             <div class="phone-row">
               <label>${t("cart.phonePrefix")}
@@ -1164,7 +1331,7 @@ function renderCart() {
           <p class="builder-note" data-pickup-note>${t("cart.pickupInfo")}</p>
           <p class="builder-note">${t("cart.requiredHint")}</p>
         </div>
-        <div class="checkout-section">
+        <div class="checkout-section" data-checkout-contact hidden>
           <p class="cart-section-title">${t("cart.contactSection")}</p>
           <label>${t("cart.contactApp")}
             <select name="contactApp">
@@ -1206,6 +1373,120 @@ function renderAll() {
   renderGallery();
   renderCart();
   updateCustomPreview(document.querySelector("[data-custom-form]"));
+  renderWheelModal();
+  applyPendingWheelCoupon();
+}
+
+function renderWheelModal() {
+  document.querySelector("[data-wheel-modal]")?.remove();
+  document.querySelector("[data-wheel-open]")?.remove();
+  const prize = getWheelPrize();
+  const used = prize?.used;
+  const label = prize ? `${prize.percent}%` : "?";
+  document.body.insertAdjacentHTML("beforeend", `
+    <button class="wheel-fab" type="button" data-wheel-open aria-label="${t("wheel.open")}">${t("wheel.open")}</button>
+    <section class="wheel-modal" data-wheel-modal hidden aria-live="polite">
+      <div class="wheel-card">
+        <button class="wheel-close" type="button" data-wheel-close aria-label="${t("wheel.close")}">×</button>
+        <p class="eyebrow">${t("wheel.title")}</p>
+        <h2>${t("wheel.won")}</h2>
+        <p>${used ? t("wheel.used") : t("wheel.text")}</p>
+        <div class="wheel-stage">
+          <div class="wheel-pointer"></div>
+          <div class="wheel-disc" data-wheel-disc>
+            <span>8%</span><span>10%</span><span>12%</span><span>15%</span><span>20%</span><span>${label}</span>
+          </div>
+        </div>
+        <div class="wheel-result" data-wheel-result>
+          ${prize ? `<strong>${prize.code}</strong><span>${used ? t("wheel.used") : prize.label}</span>` : `<span>${t("wheel.text")}</span>`}
+        </div>
+        <div class="wheel-actions">
+          <button class="button button-primary" type="button" data-wheel-spin ${prize ? "disabled" : ""}>${t("wheel.spin")}</button>
+          <button class="button button-secondary" type="button" data-wheel-apply ${!prize || used ? "disabled" : ""}>${t("wheel.apply")}</button>
+        </div>
+      </div>
+    </section>
+  `);
+  if (!prize && !sessionStorage.getItem("eterniorWheelSeen")) {
+    sessionStorage.setItem("eterniorWheelSeen", "1");
+    window.setTimeout(openWheel, 850);
+  }
+}
+
+function openWheel() {
+  const modal = document.querySelector("[data-wheel-modal]");
+  if (!modal) return;
+  modal.hidden = false;
+  document.body.classList.add("no-scroll");
+}
+
+function closeWheel() {
+  const modal = document.querySelector("[data-wheel-modal]");
+  if (!modal) return;
+  modal.hidden = true;
+  if (!document.querySelector("[data-cart-panel]")?.classList.contains("is-open")) {
+    document.body.classList.remove("no-scroll");
+  }
+}
+
+function spinWheel() {
+  if (getWheelPrize()) return;
+  const prize = pickWheelPrize();
+  const savedPrize = {
+    ...prize,
+    code: createWheelCode(),
+    createdAt: new Date().toISOString(),
+    used: false,
+  };
+  const disc = document.querySelector("[data-wheel-disc]");
+  disc?.classList.add("is-spinning");
+  window.setTimeout(() => {
+    saveWheelPrize(savedPrize);
+    renderWheelModal();
+    openWheel();
+  }, 1350);
+}
+
+function pickWheelPrize() {
+  const totalWeight = WHEEL_PRIZES.reduce((sum, prize) => sum + prize.weight, 0);
+  let roll = Math.random() * totalWeight;
+  for (const prize of WHEEL_PRIZES) {
+    roll -= prize.weight;
+    if (roll <= 0) return prize;
+  }
+  return WHEEL_PRIZES[0];
+}
+
+function applyWheelCoupon() {
+  const prize = getWheelPrize();
+  if (!prize || prize.used) return;
+  const input = document.querySelector('input[name="coupon"]');
+  if (input) {
+    input.value = prize.code;
+    updateCustomPreview(document.querySelector("[data-custom-form]"));
+    closeWheel();
+    return;
+  }
+  sessionStorage.setItem("eterniorPendingCoupon", prize.code);
+  window.location.href = "custom.html";
+}
+
+function applyPendingWheelCoupon() {
+  const code = sessionStorage.getItem("eterniorPendingCoupon");
+  const input = document.querySelector('input[name="coupon"]');
+  if (!code || !input) return;
+  input.value = code;
+  sessionStorage.removeItem("eterniorPendingCoupon");
+  updateCustomPreview(document.querySelector("[data-custom-form]"));
+}
+
+function discourageSourcePeek() {
+  document.addEventListener("contextmenu", (event) => event.preventDefault());
+  document.addEventListener("keydown", (event) => {
+    const key = event.key.toLowerCase();
+    const sourceShortcut = (event.ctrlKey || event.metaKey) && ["u", "s"].includes(key);
+    if (sourceShortcut || event.key === "F12") event.preventDefault();
+  });
 }
 
 function renderGallery() {
@@ -1234,6 +1515,7 @@ function closeCart() {
 }
 
 function addToCart(item) {
+  getCurrentOrderId();
   const existing = state.cart.find((cartItem) => cartItem.id === item.id);
   if (existing) {
     existing.quantity += 1;
@@ -1287,16 +1569,15 @@ function updateQuantity(id, amount) {
   if (item.quantity <= 0) {
     state.cart = state.cart.filter((cartItem) => cartItem.id !== id);
   }
+  if (!state.cart.length) resetOrderId();
   saveState();
   renderCart();
 }
 
 function getCustomPrice(form) {
   const data = new FormData(form);
-  let roseCount = Number(data.get("roseCount")) || 1;
   const memorial = data.get("memorial") === "on";
-  if (memorial && roseCount % 2 !== 0) roseCount += 1;
-  if (!memorial && roseCount % 2 === 0) roseCount += 1;
+  const roseCount = normalizeRoseCount(data.get("roseCount"), memorial);
 
   const sweetsTotal = memorial
     ? 0
@@ -1307,14 +1588,54 @@ function getCustomPrice(form) {
   const toy = data.get("toy") || "Bez igračke";
   const toyTotal = memorial || /^Bez|^No |^不要/.test(toy) ? 0 : STORE.toyPrice;
   const decorationTotal = memorial ? 0 : getDecorationTotal(data);
-  const boxCost = getPackagingCost(data.get("giftType"), roseCount, sweetsTotal, toyTotal);
-  const directCost = roseCount * STORE.roseCost + sweetsTotal * 0.72 + toyTotal * 0.47 + decorationTotal * 0.45 + boxCost;
-  const labor = STORE.laborBase + roseCount * STORE.laborPerRose + (sweetsTotal ? 450 : 0) + (toyTotal ? 180 : 0) + (decorationTotal ? 350 : 0);
-  const retailBeforeDiscount = Math.ceil((directCost + labor) / (1 - STORE.targetMargin) / 100) * 100;
-  const customerBudget = Number(data.get("budget")) || 0;
+  const arrangementFee = getArrangementFee(data.get("giftType"), roseCount, sweetsTotal, toyTotal, decorationTotal);
+  const retailFromParts = roseCount === STORE.maxRoses
+    ? STORE.special101Price + sweetsTotal + toyTotal + decorationTotal
+    : roseCount * STORE.rosePrice + sweetsTotal + toyTotal + decorationTotal + arrangementFee;
   const coupon = getCouponDiscount(data.get("coupon"));
-  const price = Math.max(STORE.minGiftBudget, retailBeforeDiscount, customerBudget);
-  return Math.max(STORE.minGiftBudget, Math.round(price * (1 - coupon.percent / 100) / 100) * 100);
+  const priceBeforeDiscount = roundPrice(retailFromParts);
+  const minimumAfterDiscount = roseCount === STORE.maxRoses ? retailFromParts : retailFromParts * 0.75;
+  return applySingleCouponDiscount(priceBeforeDiscount, coupon, minimumAfterDiscount);
+}
+
+function normalizeRoseCount(value, memorial) {
+  let roseCount = Math.round(Number(value) || 1);
+  roseCount = Math.max(1, Math.min(STORE.maxRoses, roseCount));
+  if (memorial) {
+    roseCount = Math.min(roseCount, STORE.memorialMaxRoses);
+    if (roseCount % 2 !== 0) roseCount += roseCount >= STORE.memorialMaxRoses ? -1 : 1;
+    return Math.max(2, roseCount);
+  }
+  if (roseCount % 2 === 0) roseCount += roseCount >= STORE.maxRoses ? -1 : 1;
+  return Math.max(1, Math.min(STORE.maxRoses, roseCount));
+}
+
+function getArrangementFee(giftType, roseCount, sweetsTotal, toyTotal, decorationTotal) {
+  if (roseCount === STORE.maxRoses) return 0;
+  const needsBox = /kutija|box|礼盒/i.test(String(giftType)) || sweetsTotal || toyTotal;
+  let fee = needsBox ? 750 : 420;
+  if (roseCount >= 51) fee += 4200;
+  else if (roseCount >= 33) fee += 3000;
+  else if (roseCount >= 19) fee += 1900;
+  else if (roseCount >= 11) fee += 1100;
+  else if (roseCount >= 7) fee += 650;
+  else fee += 250;
+  if (sweetsTotal) fee += 300;
+  if (toyTotal) fee += 120;
+  if (decorationTotal) fee += 220;
+  return fee;
+}
+
+function applySingleCouponDiscount(price, coupon, minimumAfterDiscount = STORE.minGiftBudget) {
+  const percent = Math.max(0, Math.min(Number(coupon.percent) || 0, 50));
+  const discounted = roundPrice(price * (1 - percent / 100));
+  return Math.max(roundPrice(minimumAfterDiscount), discounted);
+}
+
+function roundPrice(value) {
+  const number = Math.max(0, Number(value) || 0);
+  if (number < 1000) return Math.ceil(number / 50) * 50;
+  return Math.ceil(number / 100) * 100;
 }
 
 function getDecorationTotal(data) {
@@ -1343,9 +1664,45 @@ function getPackagingCost(giftType, roseCount, sweetsTotal, toyTotal) {
   return STORE.boxSmallCost;
 }
 
+function createWheelCode() {
+  const randomPart = Math.random().toString(36).slice(2, 7).toUpperCase();
+  const timePart = Date.now().toString(36).slice(-4).toUpperCase();
+  return `ETR-${randomPart}-${timePart}`;
+}
+
+function saveWheelPrize(prize) {
+  state.wheelPrize = prize;
+  localStorage.setItem("eterniorWheelPrize", JSON.stringify(prize));
+}
+
+function getWheelPrize() {
+  return state.wheelPrize || readStoredJson("eterniorWheelPrize", null);
+}
+
+function getActiveWheelCoupon(code) {
+  const prize = getWheelPrize();
+  if (!prize || prize.used) return null;
+  if (String(prize.code || "").toUpperCase() !== String(code || "").toUpperCase()) return null;
+  return {
+    code: prize.code,
+    percent: prize.percent,
+    label: prize.label,
+    isWheel: true,
+  };
+}
+
+function markWheelCouponUsed(code) {
+  const prize = getWheelPrize();
+  if (!prize || String(prize.code || "").toUpperCase() !== String(code || "").toUpperCase()) return;
+  saveWheelPrize({ ...prize, used: true, usedAt: new Date().toISOString() });
+}
+
 function getCouponDiscount(code) {
   const normalized = String(code || "").trim().toUpperCase();
-  if (!normalized || !COUPONS[normalized]) return { code: normalized, percent: 0, label: "" };
+  if (!normalized) return { code: normalized, percent: 0, label: "" };
+  const wheelCoupon = getActiveWheelCoupon(normalized);
+  if (wheelCoupon) return wheelCoupon;
+  if (!COUPONS[normalized]) return { code: normalized, percent: 0, label: "" };
   return { code: normalized, ...COUPONS[normalized] };
 }
 
@@ -1378,10 +1735,9 @@ function updateCustomPreview(form) {
   const data = new FormData(form);
   const roseInput = form.querySelector('input[name="roseCount"]');
   const memorial = data.get("memorial") === "on";
-  let roseCount = Number(roseInput.value) || 1;
-  if (memorial && roseCount % 2 !== 0) roseCount += 1;
-  if (!memorial && roseCount % 2 === 0) roseCount += 1;
+  const roseCount = normalizeRoseCount(roseInput.value, memorial);
   roseInput.value = roseCount;
+  roseInput.max = memorial ? STORE.memorialMaxRoses : STORE.maxRoses;
   roseInput.step = memorial ? "2" : "2";
   if (memorial) {
     const giftType = form.querySelector('select[name="giftType"]');
@@ -1403,7 +1759,12 @@ function updateCustomPreview(form) {
   const coupon = getCouponDiscount(data.get("coupon"));
   const couponNode = document.querySelector("[data-coupon-status]");
   if (couponNode) {
-    couponNode.textContent = coupon.percent ? `${t("custom.discount")}: ${coupon.label} (${coupon.code})` : "";
+    const hasCode = String(data.get("coupon") || "").trim();
+    couponNode.textContent = coupon.percent
+      ? `${t("custom.discount")}: ${coupon.label} (${coupon.code})`
+      : hasCode
+        ? t("custom.invalidCoupon")
+        : "";
   }
 
   const notes = form.querySelector('textarea[name="notes"]');
@@ -1419,13 +1780,16 @@ function buildWhatsAppMessage() {
   const orderNote = String(formData.get("orderNote") || "").trim();
   const phone = normalizePhone(formData.get("phonePrefix"), formData.get("phone"));
   const total = state.cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  const orderId = getCurrentOrderId();
   const lines = [
     `Zdravo ${STORE.name}, želim da poručim:`,
+    `Šifra upita: ${orderId}`,
     "",
     ...state.cart.map((item, index) => `${index + 1}. ${item.orderNameSr || item.name} x ${item.quantity} - ${formatMoney(item.price * item.quantity)}${item.orderDetailsSr || item.details ? ` | ${item.orderDetailsSr || item.details}` : ""}`),
     "",
     `Ukupno približno: ${formatMoney(total)}`,
     `Valuta na sajtu: ${state.currency}`,
+    `Okvirni rok izrade i isporuke: ${STORE.productionTimeSr}`,
     `Kupac želi komunikaciju preko: ${contactApp}${contactApp === "WeChat" ? ` (${STORE.wechatId})` : ""}`,
     `Ime: ${formData.get("customerName") || "Nije uneto"}`,
     `Dostava/preuzimanje: ${delivery}`,
@@ -1441,13 +1805,91 @@ function buildWhatsAppMessage() {
         : []),
     ...(orderNote ? [`Napomena kupca: ${orderNote}`] : []),
     "",
-    "Molim vas da potvrdite dostupnost, konačnu cenu i način plaćanja.",
+    "Molim vas da potvrdite dostupnost, konačnu cenu, rok izrade/isporuke i način plaćanja.",
   ];
   return lines.join("\n");
 }
 
+function getCheckoutReviewData() {
+  const form = document.querySelector("[data-checkout-form]");
+  const data = form ? new FormData(form) : new FormData();
+  const delivery = normalizeDeliverySr(data.get("delivery"));
+  const total = state.cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  return {
+    orderId: getCurrentOrderId(),
+    delivery,
+    total,
+    contactApp: data.get("contactApp") === "wechat" ? "WeChat" : "WhatsApp",
+    customerName: String(data.get("customerName") || "").trim(),
+    items: state.cart.map((item) => ({
+      name: item.orderNameSr || item.name,
+      quantity: item.quantity,
+      price: item.price * item.quantity,
+    })),
+  };
+}
+
+function openCheckoutReview(message, contactApp) {
+  closeCheckoutReview();
+  const review = getCheckoutReviewData();
+  state.pendingCheckout = { message, contactApp };
+  document.body.insertAdjacentHTML("beforeend", `
+    <section class="checkout-review" data-checkout-review aria-live="polite">
+      <div class="checkout-review-card">
+        <button class="wheel-close" type="button" data-close-checkout-review aria-label="${t("cart.reviewEdit")}">×</button>
+        <p class="eyebrow">${t("cart.orderId")}: ${review.orderId}</p>
+        <h2>${t("cart.reviewTitle")}</h2>
+        <p>${t("cart.reviewText")}</p>
+        <div class="review-lines">
+          <div><span>${t("cart.name")}</span><strong>${review.customerName || "-"}</strong></div>
+          <div><span>${t("cart.delivery")}</span><strong>${review.delivery}</strong></div>
+          <div><span>${t("cart.contactApp")}</span><strong>${review.contactApp}</strong></div>
+          <div><span>${t("cart.reviewTime")}</span><strong>${STORE.productionTimeSr}</strong></div>
+        </div>
+        <div class="review-items">
+          <p class="cart-section-title">${t("cart.reviewItems")}</p>
+          ${review.items.map((item) => `
+            <div>
+              <span>${item.name} x ${item.quantity}</span>
+              <strong>${formatMoney(item.price)}</strong>
+            </div>
+          `).join("")}
+        </div>
+        <div class="cart-total"><span>${t("cart.total")}</span><strong>${formatMoney(review.total)}</strong></div>
+        <div class="review-actions">
+          <button class="button button-primary" type="button" data-confirm-checkout>${t("cart.reviewConfirm")}</button>
+          <button class="button button-secondary" type="button" data-close-checkout-review>${t("cart.reviewEdit")}</button>
+        </div>
+      </div>
+    </section>
+  `);
+  document.body.classList.add("no-scroll");
+}
+
+function closeCheckoutReview() {
+  document.querySelector("[data-checkout-review]")?.remove();
+  if (!document.querySelector("[data-cart-panel]")?.classList.contains("is-open") && !document.querySelector("[data-wheel-modal]:not([hidden])")) {
+    document.body.classList.remove("no-scroll");
+  }
+}
+
+function confirmCheckout() {
+  if (!state.pendingCheckout) return;
+  const { message, contactApp } = state.pendingCheckout;
+  closeCheckoutReview();
+  state.pendingCheckout = null;
+  if (contactApp === "wechat") {
+    openWeChatOrder(message);
+    return;
+  }
+  openWhatsAppOrder(message);
+}
+
 function normalizeDeliverySr(value) {
   const text = String(value || "");
+  if (text === "pickup") return "Lično preuzimanje";
+  if (text === "shipping") return "Dostava";
+  if (text === "decide") return "Dogovor preko WhatsApp-a";
   if ([copy.sr["cart.pickup"], copy.en["cart.pickup"], copy.zh["cart.pickup"]].includes(text)) return "Lično preuzimanje";
   if ([copy.sr["cart.decide"], copy.en["cart.decide"], copy.zh["cart.decide"]].includes(text)) return "Dogovor preko WhatsApp-a";
   return "Dostava";
@@ -1479,8 +1921,20 @@ function syncCheckoutDeliveryFields() {
   const delivery = normalizeDeliverySr(form.querySelector('select[name="delivery"]')?.value);
   const isShipping = delivery === "Dostava";
   const isPickup = delivery === "Lično preuzimanje";
+  const hasDeliveryChoice = isShipping || isPickup;
   const fields = form.querySelector("[data-delivery-fields]");
+  const details = form.querySelector("[data-checkout-details]");
+  const contact = form.querySelector("[data-checkout-contact]");
   const pickupNote = form.querySelector("[data-pickup-note]");
+  [details, contact].forEach((section) => {
+    if (!section) return;
+    section.hidden = !hasDeliveryChoice;
+    section.querySelectorAll("input, select, textarea").forEach((field) => {
+      field.disabled = !hasDeliveryChoice;
+      field.required = false;
+      if (!hasDeliveryChoice && field.tagName !== "SELECT") field.value = "";
+    });
+  });
   if (fields) {
     fields.hidden = !isShipping;
     fields.querySelectorAll("input, textarea").forEach((field) => {
@@ -1498,11 +1952,23 @@ function validateCheckout() {
   syncCheckoutDeliveryFields();
   const data = new FormData(form);
   const delivery = normalizeDeliverySr(data.get("delivery"));
+  const deliveryChoice = data.get("delivery");
+  const deliveryChosen = deliveryChoice === "shipping" || deliveryChoice === "pickup";
   const required = ["customerName"];
   if (delivery === "Dostava") required.push("phone", "cityPostal", "address");
   const missing = required.filter((name) => !String(data.get(name) || "").trim());
   const error = form.querySelector("[data-checkout-error]");
   form.querySelectorAll(".is-invalid").forEach((field) => field.classList.remove("is-invalid"));
+  if (!deliveryChosen) {
+    const deliverySelect = form.elements.delivery;
+    if (deliverySelect) {
+      deliverySelect.classList.add("is-invalid");
+      deliverySelect.focus();
+      deliverySelect.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+    if (error) error.textContent = t("cart.deliveryChoiceRequired");
+    return false;
+  }
   if (delivery === "Dostava" && !missing.includes("phone") && !isValidPhone(data.get("phonePrefix"), data.get("phone"))) {
     const phone = form.elements.phone;
     if (phone) {
@@ -1555,11 +2021,7 @@ function checkout() {
   const form = document.querySelector("[data-checkout-form]");
   const contactApp = form ? new FormData(form).get("contactApp") : "whatsapp";
   const message = buildWhatsAppMessage();
-  if (contactApp === "wechat") {
-    openWeChatOrder(message);
-    return;
-  }
-  openWhatsAppOrder(message);
+  openCheckoutReview(message, contactApp);
 }
 
 function handleCustom(event) {
@@ -1567,8 +2029,11 @@ function handleCustom(event) {
   const data = new FormData(event.currentTarget);
   const price = getCustomPrice(event.currentTarget);
   const memorial = data.get("memorial") === "on";
+  const roseCount = normalizeRoseCount(data.get("roseCount"), memorial);
   const coupon = getCouponDiscount(data.get("coupon"));
-  const roseLine = `${data.get("roseCount")} ruža x ${STORE.rosePrice} RSD`;
+  const roseLine = roseCount === STORE.maxRoses
+    ? `${roseCount} ruža - poseban veliki aranžman ${STORE.special101Price} RSD pre dodataka`
+    : `${roseCount} ruža x ${STORE.rosePrice} RSD`;
   const colorLine = `boja/paleta: ${getColorSr(data.get("roseColor"))} (nijansa može blago odstupati uživo)`;
   const photoCount = Number(data.get("photoCount")) || 0;
   const decorationLine = memorial
@@ -1576,7 +2041,7 @@ function handleCustom(event) {
     : `glitter: ${describeGlitterSr(data.get("glitter"))}; nakit: ${describeJewelrySr(data.get("jewelry"))}; višebojne latice: ${data.get("multicolorPetals") === "yes" ? "da" : "ne"}; traka sa natpisom: ${data.get("ribbonText") || "ne"}; slike u aranžmanu: ${photoCount ? `${photoCount} (kupac šalje slike naknadno, uklapanje po dogovoru)` : "ne"}`;
   const customDetails = memorial
     ? `za preminulu osobu; ${roseLine}; ${colorLine}; bez slatkiša, igračke i poruke; pakovanje dostojanstveno i jednostavno`
-    : `poklon aranžman, neparan broj; ${roseLine}; ${colorLine}; Raffaello: ${data.get("rafaello") || 0} x ${sweetPrices.rafaello} RSD; Ferrero: ${data.get("ferrero") || 0} x ${sweetPrices.ferrero} RSD; male čokoladice: ${data.get("miniChocolate") || 0} x ${sweetPrices.miniChocolate} RSD; velike čokolade: ${data.get("bigChocolate") || 0} x ${sweetPrices.bigChocolate} RSD; igračka: ${srOption(data.get("toy"), "toy")} (${srOption(data.get("toyColor"), "toyColors")}) ${/^Bez|^No |^不要/.test(data.get("toy") || "") ? "" : `+ ${STORE.toyPrice} RSD`}; ${decorationLine}; poruka (${srOption(data.get("script"), "script")}): ${data.get("notes") || "bez poruke"}; kupon: ${coupon.percent ? `${coupon.code} - ${coupon.label}` : "bez kupona"}`;
+    : `poklon aranžman, neparan broj; ${roseLine}; ${colorLine}; Raffaello: ${data.get("rafaello") || 0} x ${sweetPrices.rafaello} RSD; Ferrero: ${data.get("ferrero") || 0} x ${sweetPrices.ferrero} RSD; male čokoladice: ${data.get("miniChocolate") || 0} x ${sweetPrices.miniChocolate} RSD; velike čokolade: ${data.get("bigChocolate") || 0} x ${sweetPrices.bigChocolate} RSD; igračka: ${srOption(data.get("toy"), "toy")} (${srOption(data.get("toyColor"), "toyColors")}) ${/^Bez|^No |^不要/.test(data.get("toy") || "") ? "" : `+ ${STORE.toyPrice} RSD`}; ${decorationLine}; poruka (${srOption(data.get("script"), "script")}): ${data.get("notes") || "bez poruke"}; kupon: ${coupon.percent ? `${coupon.code} - ${coupon.label}, primenjen jednom na ukupnu cenu` : "bez kupona"}`;
   addToCart({
     id: `custom-${Date.now()}`,
     name: data.get("giftType"),
@@ -1586,6 +2051,7 @@ function handleCustom(event) {
     details: customDetails,
     orderDetailsSr: customDetails,
   });
+  if (coupon.isWheel) markWheelCouponUsed(coupon.code);
   event.currentTarget.reset();
   updateCustomPreview(event.currentTarget);
 }
@@ -1753,6 +2219,12 @@ document.addEventListener("click", (event) => {
   const shareButton = event.target.closest("[data-share-product]");
   const paletteButton = event.target.closest("[data-palette-color]");
   const backToTop = event.target.closest('a[href="#top"]');
+  const wheelOpen = event.target.closest("[data-wheel-open]");
+  const wheelClose = event.target.closest("[data-wheel-close]");
+  const wheelSpin = event.target.closest("[data-wheel-spin]");
+  const wheelApply = event.target.closest("[data-wheel-apply]");
+  const closeReview = event.target.closest("[data-close-checkout-review]");
+  const confirmReview = event.target.closest("[data-confirm-checkout]");
 
   if (backToTop) {
     event.preventDefault();
@@ -1762,6 +2234,12 @@ document.addEventListener("click", (event) => {
     document.documentElement.scrollTop = 0;
     document.body.scrollTop = 0;
   }
+  if (wheelOpen) openWheel();
+  if (wheelClose) closeWheel();
+  if (wheelSpin) spinWheel();
+  if (wheelApply) applyWheelCoupon();
+  if (closeReview) closeCheckoutReview();
+  if (confirmReview) confirmCheckout();
   if (navToggle) {
     document.querySelector("[data-nav]").classList.toggle("is-open");
     document.querySelector(".header-actions").classList.toggle("is-open");
@@ -1831,6 +2309,7 @@ document.addEventListener("click", (event) => {
   if (event.target.closest("[data-whatsapp-checkout]")) checkout();
   if (event.target.closest("[data-clear-cart]")) {
     state.cart = [];
+    resetOrderId();
     saveState();
     renderCart();
   }
@@ -1880,6 +2359,7 @@ document.querySelectorAll(".site-nav a").forEach((link) => {
 document.querySelector("[data-custom-form]")?.addEventListener("submit", handleCustom);
 document.querySelector("[data-concierge-form]")?.addEventListener("submit", handleConcierge);
 
+discourageSourcePeek();
 renderAll();
 updateRate();
 updateCustomPreview(document.querySelector("[data-custom-form]"));

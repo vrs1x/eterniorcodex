@@ -1,4 +1,4 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="sr">
   <head>
     <meta charset="UTF-8" />
@@ -7,14 +7,16 @@
     <meta name="description" content="Napravi svoj Eternior buket ili slatku kutiju po budžetu, boji i prilici." />
     <meta property="og:title" content="Napravi svoj Eternior poklon" />
     <meta property="og:description" content="Izaberi ruže, slatkiše, igračku i ručno pisanu poruku. Cena se računa uživo." />
-    <meta property="og:image" content="assets/image_2026-06-07_164222432-removebg-preview.png" />
+    <meta property="og:image" content="assets/eternior_logo.png" />
     <meta property="og:type" content="website" />
+    <link rel="icon" type="image/png" href="assets/favicon.png" />
+    <link rel="apple-touch-icon" href="assets/favicon.png" />
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body data-page="custom">
     <header class="site-header" id="top">
       <a class="brand" href="index.html" aria-label="Eternior početna">
-        <img src="assets/image_2026-06-07_164222432-removebg-preview.png" alt="Eternior logo" width="150" height="84" />
+        <img src="assets/eternior_logo.png" alt="Eternior logo" width="150" height="120" />
       </a>
       <button class="nav-toggle" type="button" data-nav-toggle aria-label="Otvori meni">
         <span></span><span></span><span></span>
@@ -57,7 +59,7 @@
           <p class="eyebrow" data-i18n="custom.formEyebrow">Ručno podešavanje</p>
           <div class="builder-total">
             <span data-i18n="custom.estimate">Procena cene</span>
-            <strong data-custom-total>1.500 RSD</strong>
+            <strong data-custom-total>2.800 RSD</strong>
           </div>
           <p class="builder-note" data-i18n="custom.pricingNote">Cena uključuje materijal, ručni rad, pakovanje i rezervu za završnu obradu.</p>
           <label>
@@ -71,7 +73,7 @@
           <div class="field-row">
             <label>
               <span data-i18n="custom.roseCount">Broj ruža</span>
-              <input name="roseCount" type="number" min="1" max="201" step="2" value="7" data-price-input />
+              <input name="roseCount" type="number" min="1" max="101" step="2" value="7" data-price-input />
             </label>
             <label>
               <span data-i18n="custom.budget">Budžet u RSD</span>
@@ -198,10 +200,16 @@
             </select>
           </label>
           <div class="coupon-box" data-non-memorial>
+            <div class="builder-perks">
+              <span data-i18n="custom.perkOne">Predračun pre slanja</span>
+              <span data-i18n="custom.perkTwo">Kuponi i preporuke</span>
+              <span data-i18n="custom.perkThree">Dogovor pre izrade</span>
+            </div>
             <label>
               <span data-i18n="custom.coupon">Kupon kod</span>
-              <input name="coupon" type="text" data-price-input placeholder="ETERNIOR10" />
+              <input name="coupon" type="text" data-price-input data-placeholder-i18n="custom.couponPlaceholder" placeholder="Upiši kod sa kartice" />
             </label>
+            <button class="button button-secondary coupon-quick" type="button" data-wheel-apply data-i18n="custom.useWheelCoupon">Ubaci moj kupon iz točka</button>
             <small data-i18n="custom.couponHint">Kuponi se dobijaju uz porudžbinu ili preporuku prijatelja.</small>
             <p class="coupon-status" data-coupon-status></p>
           </div>
@@ -247,7 +255,7 @@
 
     <footer class="site-footer">
       <div>
-        <img src="assets/image_2026-06-07_164222432-removebg-preview.png" alt="Eternior" width="130" height="73" loading="lazy" />
+        <img src="assets/eternior_logo.png" alt="Eternior" width="130" height="104" loading="lazy" />
         <p data-i18n="footer.text">Satenske ruže, buketi i slatke kutije napravljene za trenutke koji se pamte.</p>
       </div>
       <div class="footer-columns">
@@ -257,7 +265,7 @@
         </div>
         <div>
           <h3 data-i18n="footer.minBudgetTitle">Minimalni budžet</h3>
-          <p data-i18n="footer.minBudgetText">Najmanji budžet za personalizovan poklon je 1.500 RSD.</p>
+          <p data-i18n="footer.minBudgetText">Manji pokloni se računaju prema izboru, a za složenije personalizacije preporučujemo budžet od 1.500 RSD i više.</p>
         </div>
         <div>
           <h3 data-i18n="footer.contactTitle">Kontakt</h3>
@@ -279,3 +287,6 @@
     <script src="script.js"></script>
   </body>
 </html>
+
+
+
